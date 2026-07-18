@@ -8,31 +8,32 @@
 
 /* ── Design tokens (mirrors dashboard exactly) ───────────────── */
 :root {
-  --bg-void:         #0D1117;
-  --surface:         #161B22;
-  --surface-raised:  #1F2733;
+  --bg-void:         #0A0A0B;
+  --surface:         #16100F;
+  --surface-raised:  #211614;
   --border:          rgba(255, 255, 255, 0.08);
   --border-subtle:   rgba(255, 255, 255, 0.05);
 
-  --ink:             #E6EDF3;
-  --ink-muted:       #7D8590;
-  --ink-dim:         #484F58;
+  --ink:             #F2E9E4;
+  --ink-muted:       #8A7A75;
+  --ink-dim:         #5C4D4A;
 
   /* Status — same tokens, calmer usage in fan context */
-  --pulse-normal:    #3FB950;
-  --pulse-watch:     #D29922;
-  --pulse-critical:  #F85149;
+  --pulse-normal:    #4A7856;
+  --pulse-watch:     #C08A2E;
+  --pulse-critical:  #B8323F;
 
-  --normal-fill:     rgba(63, 185, 80,  0.12);
-  --normal-border:   rgba(63, 185, 80,  0.25);
-  --watch-fill:      rgba(210, 153, 34, 0.12);
-  --watch-border:    rgba(210, 153, 34, 0.25);
-  --critical-fill:   rgba(248, 81, 73,  0.10);   /* lighter fill — reassuring tone */
-  --critical-border: rgba(248, 81, 73,  0.22);
+  --normal-fill:     rgba(74, 120, 86,  0.12);
+  --normal-border:   rgba(74, 120, 86,  0.25);
+  --watch-fill:      rgba(192, 138, 46, 0.12);
+  --watch-border:    rgba(192, 138, 46, 0.25);
+  --critical-fill:   rgba(184, 50, 63,  0.08);   /* lighter fill — reassuring tone */
+  --critical-border: rgba(184, 50, 63,  0.18);
 
-  /* Fan-view accent: slightly warmer blue-teal vs dashboard cold blue */
-  --accent:          #1F6FEB;
-  --accent-soft:     #58A6FF;
+  /* Fan-view accent: warm accent colors matching the palette */
+  --maroon-primary:  #7A1F2B;
+  --accent:          #7A1F2B;
+  --accent-soft:     #D66B78;   /* Softer, warmer pink-maroon for route value */
 
   --font-header: 'Space Grotesk', system-ui, sans-serif;
   --font-body:   'Inter', system-ui, sans-serif;

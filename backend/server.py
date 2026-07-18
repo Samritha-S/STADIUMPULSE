@@ -89,16 +89,22 @@ def get_landing():
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-void: #0D1117;
-      --surface: #161B22;
+      --bg-void: #0A0A0B;
+      --surface: #16100F;
+      --surface-raised: #211614;
       --border: rgba(255, 255, 255, 0.08);
-      --ink: #E6EDF3;
-      --ink-muted: #7D8590;
-      --accent: #388BFD;
-      --accent-hover: #58A6FF;
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --ink: #F2E9E4;
+      --ink-muted: #8A7A75;
+      
+      --maroon-primary: #7A1F2B;
+      --maroon-glow: rgba(122, 31, 43, 0.15);
+      --pulse-normal: #4A7856;
+      
       --font-header: 'Space Grotesk', system-ui, sans-serif;
       --font-body: 'Inter', system-ui, sans-serif;
     }
+    
     body {
       background-color: var(--bg-void);
       color: var(--ink);
@@ -109,74 +115,153 @@ def get_landing():
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 1.5rem;
+      padding: 2rem 1.5rem;
       box-sizing: border-box;
     }
+    
     .container {
       background-color: var(--surface);
       border: 1px solid var(--border);
+      border-top: 4px solid var(--maroon-primary);
       border-radius: 12px;
-      padding: 2.5rem;
-      max-width: 500px;
+      padding: 3rem 2.5rem;
+      max-width: 680px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
     }
+
+    /* Signature Accent Glow */
+    .container::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 10%;
+      right: 10%;
+      height: 4px;
+      background: var(--maroon-primary);
+      filter: blur(8px);
+      opacity: 0.6;
+    }
+    
     h1 {
       font-family: var(--font-header);
-      font-size: 2.25rem;
+      font-size: 2.5rem;
       font-weight: 700;
       margin: 0 0 0.5rem 0;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      color: var(--ink);
     }
-    p {
+    
+    .positioning-copy {
       color: var(--ink-muted);
-      font-size: 0.95rem;
-      margin-bottom: 2rem;
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.5;
     }
-    .links-grid {
+    
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 580px) {
+      .portal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .portal-card {
+      background-color: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      text-align: left;
+      transition: all 0.22s ease-in-out;
+      text-decoration: none;
+      color: inherit;
     }
-    .portal-btn {
+    
+    .portal-card:hover {
+      border-color: var(--maroon-primary);
+      box-shadow: 0 0 15px var(--maroon-glow);
+      transform: translateY(-2px);
+    }
+
+    .portal-card:focus-visible {
+      outline: 2px solid var(--pulse-normal);
+      outline-offset: 2px;
+    }
+    
+    .card-title {
+      font-family: var(--font-header);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: var(--ink);
       display: flex;
       align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      font-family: var(--font-header);
-      font-size: 1.1rem;
+      justify-content: space-between;
+    }
+
+    .card-title::after {
+      content: '→';
+      font-weight: 500;
+      opacity: 0.5;
+      transition: transform 0.2s;
+    }
+
+    .portal-card:hover .card-title::after {
+      transform: translateX(3px);
+      opacity: 0.9;
+      color: var(--maroon-primary);
+    }
+    
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      line-height: 1.45;
+      margin: 0;
+    }
+    
+    .card-badge {
+      display: inline-block;
+      font-size: 0.65rem;
       font-weight: 700;
-      color: #fff;
-      background-color: var(--bg-void);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      transition: all 0.2s ease-in-out;
-    }
-    .portal-btn:hover {
-      border-color: var(--accent-hover);
-      box-shadow: 0 0 10px rgba(56, 139, 253, 0.25);
-      background-color: rgba(255, 255, 255, 0.02);
-    }
-    .portal-btn:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-muted);
+      margin-bottom: 0.75rem;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>StadiumPulse</h1>
-    <p>AI-assisted crowd safety intelligence portal</p>
-    <nav class="links-grid" aria-label="Portal access">
-      <a href="/admin" class="portal-btn" aria-label="Access Ops Center Dashboard">Ops Center Dashboard</a>
-      <a href="/fan" class="portal-btn" aria-label="Access Fan Companion Mobile View">Fan Companion App</a>
+    <p class="positioning-copy">Real-time crowd flow forecasting and AI-assisted safety routing for FIFA World Cup 2026 operations.</p>
+    
+    <nav class="portal-grid" aria-label="Portal access">
+      <a href="/admin" class="portal-card" aria-label="Access Ops Center Dashboard">
+        <span class="card-badge">CONTROL ROOM ONLY</span>
+        <h2 class="card-title">Ops Center</h2>
+        <p class="card-desc">High-density visual monitor wall showing real-time zone congestion, predictive flow analytics, and GenAI brief alerts.</p>
+      </a>
+      
+      <a href="/fan" class="portal-card" aria-label="Access Fan Companion Mobile View">
+        <span class="card-badge">SPECTATOR CHANNEL</span>
+        <h2 class="card-title">Fan Companion</h2>
+        <p class="card-desc">Personalized multilingual companion view providing step-free routing nudges, optimized egress pathways, and live directions.</p>
+      </a>
     </nav>
   </div>
 </body>
 </html>"""
-
 
 
 def _most_urgent_zone(states: List[Dict[str, Any]]) -> Dict[str, Any]:

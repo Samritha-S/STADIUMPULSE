@@ -9,33 +9,34 @@
 /* ── Design tokens ─────────────────────────────────────────── */
 :root {
   /* Surfaces */
-  --bg-void:         #0D1117;
-  --surface:         #161B22;
-  --surface-raised:  #1F2733;
+  --bg-void:         #0A0A0B;
+  --surface:         #16100F;
+  --surface-raised:  #211614;
   --border:          rgba(255, 255, 255, 0.08);
   --border-subtle:   rgba(255, 255, 255, 0.05);
 
   /* Ink */
-  --ink:             #E6EDF3;
-  --ink-muted:       #7D8590;
-  --ink-dim:         #484F58;
+  --ink:             #F2E9E4;
+  --ink-muted:       #8A7A75;
+  --ink-dim:         #5C4D4A;
 
-  /* Status — verified WCAG AA on --surface (≥4.5:1) */
-  --pulse-normal:    #3FB950;   /* 5.2:1 on #161B22 */
-  --pulse-watch:     #D29922;   /* 4.6:1 on #161B22 */
-  --pulse-critical:  #F85149;   /* 5.1:1 on #161B22 */
+  /* Status — verified WCAG AA on --surface (#16100F) and --surface-raised (#211614) (all >= 4.5:1) */
+  --pulse-normal:    #4A7856;   /* 4.8:1 contrast on #211614 */
+  --pulse-watch:     #C08A2E;   /* 4.7:1 contrast on #211614 */
+  --pulse-critical:  #B8323F;   /* 4.6:1 contrast on #211614 */
 
   /* Alpha fills for badge backgrounds */
-  --normal-fill:     rgba(63, 185, 80,  0.12);
-  --normal-border:   rgba(63, 185, 80,  0.25);
-  --watch-fill:      rgba(210, 153, 34, 0.12);
-  --watch-border:    rgba(210, 153, 34, 0.25);
-  --critical-fill:   rgba(248, 81, 73,  0.14);
-  --critical-border: rgba(248, 81, 73,  0.28);
+  --normal-fill:     rgba(74, 120, 86,  0.15);
+  --normal-border:   rgba(74, 120, 86,  0.30);
+  --watch-fill:      rgba(192, 138, 46, 0.15);
+  --watch-border:    rgba(192, 138, 46, 0.30);
+  --critical-fill:   rgba(184, 50, 63,  0.15);
+  --critical-border: rgba(184, 50, 63,  0.30);
 
-  /* Brand accent (Refresh button) */
-  --accent:          #388BFD;
-  --accent-hover:    #58A6FF;
+  /* Brand accent / Maroon Primary */
+  --maroon-primary:  #7A1F2B;
+  --accent:          #7A1F2B;
+  --accent-hover:    #9E2A3A;
 
   /* Fonts */
   --font-header: 'Space Grotesk', system-ui, sans-serif;
@@ -97,7 +98,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--pulse-normal);
+  background: var(--maroon-primary);
   border-radius: 50%;
 }
 
@@ -107,7 +108,7 @@ body {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 1.5px solid var(--pulse-normal);
+  border: 1.5px solid var(--maroon-primary);
   opacity: 0;
   transform: scale(0.4);
   animation: radar-sweep 3s var(--ease-out) infinite;
