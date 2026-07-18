@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FanNudge",
+  "description": "Personalized crowd control nudge message tailored to a specific fan's language and accessibility needs.",
+  "type": "object",
+  "properties": {
+    "fan_id": {
+      "type": "string",
+      "description": "Unique identifier of the target fan."
+    },
+    "language": {
+      "type": "string",
+      "description": "Language code of the message (e.g., 'en', 'es', 'fr')."
+    },
+    "mobility_needs": {
+      "type": "boolean",
+      "description": "True if the fan requires accessible (step-free) routing."
+    },
+    "message_text": {
+      "type": "string",
+      "description": "Personalized GenAI-generated message text prompting the fan to route elsewhere."
+    },
+    "suggested_route": {
+      "type": "string",
+      "description": "Recommended route code or gate to use instead of the congested zone."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp indicating when the nudge was generated."
+    }
+  },
+  "required": [
+    "fan_id",
+    "language",
+    "mobility_needs",
+    "message_text",
+    "suggested_route",
+    "generated_at"
+  ]
+}

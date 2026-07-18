@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ControlRoomBrief",
+  "description": "GenAI-generated brief for operational staff in the control room regarding a forecasted congestion or anomaly.",
+  "type": "object",
+  "properties": {
+    "zone_id": {
+      "type": "string",
+      "description": "Identifier of the zone that triggered the brief."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Operational severity of the alert."
+    },
+    "summary_text": {
+      "type": "string",
+      "description": "Concise summary of the crowd flow situation and risks."
+    },
+    "recommended_action": {
+      "type": "string",
+      "description": "Recommended immediate operational action (e.g., 'Deploy staff to gate 3 to redirect flow')."
+    },
+    "suggested_reroute_zone": {
+      "type": "string",
+      "description": "Target zone or route ID where crowd flow should be redirected."
+    },
+    "languages_needed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of languages required for announcements/nudges based on crowd demographics."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp indicating when the brief was generated."
+    }
+  },
+  "required": [
+    "zone_id",
+    "severity",
+    "summary_text",
+    "recommended_action",
+    "suggested_reroute_zone",
+    "languages_needed",
+    "generated_at"
+  ]
+}

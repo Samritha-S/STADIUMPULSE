@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StadiumPulse — Control Room Dashboard</title>
+  <!-- Google Fonts for premium typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+  <header class="app-header">
+    <div class="logo-container">
+      <span class="logo-pulse"></span>
+      <h1 class="app-title">StadiumPulse</h1>
+      <span class="badge badge-ops">Ops Center</span>
+    </div>
+    <div class="header-meta">
+      <span class="system-time" id="clock">00:00:00 UTC</span>
+      <button class="btn btn-primary" id="refresh-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M21 8h-5V3" />
+        </svg>
+        Refresh Data
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard-layout">
+    <!-- Zone Monitoring Section -->
+    <section class="panel-section zone-monitoring" aria-labelledby="zone-section-title">
+      <header class="panel-header">
+        <h2 id="zone-section-title">Stadium Zone Monitoring</h2>
+        <p class="section-description">Real-time crowd flow status and capacity tracking</p>
+      </header>
+      <div class="zone-grid" id="zone-grid-container">
+        <!-- Rendered dynamically by app.js -->
+        <div class="loading-state">Loading zone status...</div>
+      </div>
+    </section>
+
+    <!-- Operational Brief Feed Panel -->
+    <section class="panel-section brief-feed" aria-labelledby="brief-section-title">
+      <header class="panel-header">
+        <h2 id="brief-section-title">GenAI Operational Briefs</h2>
+        <p class="section-description">Automated response briefings and routing recommendations</p>
+      </header>
+      <!-- aria-live="polite" tells screen readers to announce new alerts as they load -->
+      <div class="feed-container" id="brief-feed-container" aria-live="polite">
+        <!-- Rendered dynamically by app.js -->
+        <div class="loading-state">Loading briefings...</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

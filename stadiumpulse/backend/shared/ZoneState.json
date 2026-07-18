@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ZoneState",
+  "description": "Represents the live state of a specific stadium zone, including current occupancy and density forecasts.",
+  "type": "object",
+  "properties": {
+    "zone_id": {
+      "type": "string",
+      "description": "Unique identifier for the stadium zone (e.g., 'zone_a', 'gate_3_concourse')."
+    },
+    "zone_name": {
+      "type": "string",
+      "description": "Human-readable name of the zone (e.g., 'North Concourse Gate 3')."
+    },
+    "current_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Current number of people detected in the zone."
+    },
+    "capacity": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum safe crowd capacity for this zone."
+    },
+    "forecast_count_15min": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Forecasted crowd count in the zone in 15 minutes."
+    },
+    "forecast_count_30min": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Forecasted crowd count in the zone in 30 minutes."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["normal", "watch", "critical"],
+      "description": "Safety status of the zone based on density and forecasts."
+    },
+    "connected_gates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of gate identifiers connected directly to this zone."
+    },
+    "accessible_routes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of routes/paths originating from or passing through this zone."
+    }
+  },
+  "required": [
+    "zone_id",
+    "zone_name",
+    "current_count",
+    "capacity",
+    "forecast_count_15min",
+    "forecast_count_30min",
+    "status",
+    "connected_gates",
+    "accessible_routes"
+  ]
+}
