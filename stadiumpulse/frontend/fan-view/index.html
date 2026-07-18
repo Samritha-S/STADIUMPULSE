@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StadiumPulse — Fan Companion View</title>
+  <!-- Google Fonts for premium typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="mobile-body">
+
+  <!-- Outer layout wrapper to present a realistic mobile device container -->
+  <main class="phone-wrapper">
+    <div class="phone-frame">
+      <header class="phone-header">
+        <div class="phone-status-bar">
+          <span class="phone-time" id="device-time">17:35</span>
+          <div class="phone-signals" aria-hidden="true">
+            <!-- Simple SVG icons representing mobile status bar icons -->
+            <svg class="icon-signal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M2 11.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            <svg class="icon-battery" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M2 6h10v4H2V6z"/>
+              <path d="M2 4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H2zm10 1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h10z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="app-navbar">
+          <div class="app-branding">
+            <span class="pulse-indicator"></span>
+            <h2>StadiumPulse</h2>
+          </div>
+          <span class="app-view-label">Fan Companion</span>
+        </div>
+      </header>
+
+      <!-- Main screen content area -->
+      <div class="phone-content">
+        <!-- Live-Updating Nudge Region -->
+        <section class="nudge-section" aria-labelledby="notification-title">
+          <h3 id="notification-title" class="visually-hidden">Live Safety and Traffic Guidance</h3>
+          
+          <div class="nudge-box-wrapper" id="nudge-display-wrapper" aria-live="polite">
+            <!-- Rendered dynamically by app.js -->
+            <div class="nudge-loading">Loading live updates...</div>
+          </div>
+        </section>
+
+        <!-- Simulated interactive map block to give realistic app vibes -->
+        <section class="map-placeholder" aria-label="Interactive Stadium Map">
+          <div class="map-grid">
+            <div class="map-route-line"></div>
+            <div class="map-node map-node-current">
+              <span class="node-label">You</span>
+            </div>
+            <div class="map-node map-node-destination">
+              <span class="node-label">Destination</span>
+            </div>
+          </div>
+          <p class="map-caption">Map updating with optimized route directions...</p>
+        </section>
+      </div>
+
+      <footer class="phone-footer">
+        <nav class="mobile-nav" aria-label="App Navigation">
+          <button class="nav-item active" aria-current="page">
+            <span class="nav-icon">📢</span>
+            <span class="nav-text">Updates</span>
+          </button>
+          <button class="nav-item">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-text">Map</span>
+          </button>
+          <button class="nav-item">
+            <span class="nav-icon">🎟️</span>
+            <span class="nav-text">Tickets</span>
+          </button>
+        </nav>
+      </footer>
+    </div>
+
+    <!-- Demo Controller Box on the outside of the phone frame -->
+    <aside class="demo-controls-panel" aria-label="Hackathon Demo Controller">
+      <h4>Demo Controller</h4>
+      <p>Cycle through sample nudge objects generated matching the schema.</p>
+      <button class="btn btn-secondary" id="next-nudge-btn">
+        Next Scenario Example
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+        </svg>
+      </button>
+      <div class="demo-scenario-info" id="scenario-info-text">
+        Scenario: Normal Exit Update (EN)
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
