@@ -29,10 +29,11 @@ load_dotenv(dotenv_path=os.path.join(_here, "../../.env"))
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from forecast.data_generator import generate_zone_scenario
-from forecast.forecast_service import forecast_zone
 from reasoning.generate_brief import generate_brief
 from reasoning.generate_nudge import generate_nudge
+
+# ── Stateful simulation — one shared instance for the lifetime of the process
+from simulation_state import SIMULATION
 
 app = FastAPI(title="StadiumPulse API", version="0.1.0")
 
@@ -66,93 +67,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Zone definitions ─────────────────────────────────────────────────────────
-# Four predefined zones: two normal, one ramping toward watch, one spiking to critical.
-# Scenario type and capacity are the only tuneable parameters; all other metadata
-# lives here so the frontend and reasoning layer always get the right names/gates.
-
-ZONE_DEFS = [
-    {
-        "zone_id": "zone_east_concourse",
-        "zone_name": "East Concourse",
-        "capacity": 800,
-        "scenario_type": "normal",
-        "duration_minutes": 30,
-        "metadata": {
-            "zone_id": "zone_east_concourse",
-            "zone_name": "East Concourse",
-            "connected_gates": ["gate_5", "gate_6"],
-            "accessible_routes": ["ramp_east_1", "elevator_east"],
-        },
-    },
-    {
-        "zone_id": "zone_north_gate3",
-        "zone_name": "North Concourse Gate 3",
-        "capacity": 800,
-        "scenario_type": "spike",          # trending toward watch
-        "duration_minutes": 20,            # shorter history → mid-surge
-        "metadata": {
-            "zone_id": "zone_north_gate3",
-            "zone_name": "North Concourse Gate 3",
-            "connected_gates": ["gate_3", "gate_4"],
-            "accessible_routes": ["ramp_north_1", "elevator_north"],
-        },
-    },
-    {
-        "zone_id": "zone_south_main",
-        "zone_name": "South Main Concourse",
-        "capacity": 800,
-        "scenario_type": "spike",          # full 30-min spike → critical
-        "duration_minutes": 30,
-        "metadata": {
-            "zone_id": "zone_south_main",
-            "zone_name": "South Main Concourse",
-            "connected_gates": ["gate_1", "gate_2"],
-            "accessible_routes": ["ramp_south_1", "elevator_south"],
-        },
-    },
-    {
-        "zone_id": "zone_west_standing",
-        "zone_name": "West Standing Area",
-        "capacity": 600,
-        "scenario_type": "normal",
-        "duration_minutes": 30,
-        "metadata": {
-            "zone_id": "zone_west_standing",
-            "zone_name": "West Standing Area",
-            "connected_gates": ["gate_7"],
-            "accessible_routes": ["ramp_west_1"],
-        },
-    },
-]
-
-
-def _compute_zone_states() -> List[Dict[str, Any]]:
-    """
-    Generate synthetic history for every zone and run it through forecast_zone.
-    Returns a list of ZoneState dicts matching the shared schema.
-
-    Called by both /api/zones and /api/briefs so the two endpoints see the
-    same snapshot (recomputed on each request — acceptable for a hackathon demo;
-    a production system would cache this with a short TTL).
-    """
-    states = []
-    for zdef in ZONE_DEFS:
-        series = generate_zone_scenario(
-            zone_id=zdef["zone_id"],
-            duration_minutes=zdef["duration_minutes"],
-            scenario_type=zdef["scenario_type"],
-            capacity=zdef["capacity"],
-        )
-        history = [count for _, count in series]
-        state = forecast_zone(
-            zone_history=history,
-            capacity=zdef["capacity"],
-            zone_metadata=zdef["metadata"],
-        )
-        states.append(state)
-    return states
-
 
 def _most_urgent_zone(states: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
@@ -175,11 +89,11 @@ def _most_urgent_zone(states: List[Dict[str, Any]]) -> Dict[str, Any]:
 @app.get("/api/zones", response_model=List[Dict[str, Any]])
 def get_zones():
     """
-    Returns the current ZoneState for every predefined zone.
-    Synthetic crowd history is regenerated on each call so counts evolve
-    naturally across refreshes during the demo.
+    Advances the simulation by one tick and returns the current ZoneState for
+    every predefined zone.  Repeated polls show genuine progression over time.
     """
-    return _compute_zone_states()
+    SIMULATION.tick()
+    return SIMULATION.get_current_zone_states()
 
 
 @app.get("/api/briefs", response_model=List[Dict[str, Any]])
@@ -188,9 +102,12 @@ def get_briefs():
     For every zone with status 'watch' or 'critical', calls generate_brief
     and returns the resulting ControlRoomBrief list, most urgent first.
 
+    Does NOT call tick() — reflects the same moment as the last /api/zones
+    call so the dashboard shows coherent data.
+
     Returns an empty list if all zones are currently in normal status.
     """
-    states = _compute_zone_states()
+    states = SIMULATION.get_current_zone_states()
     alert_zones = [z for z in states if z["status"] in ("watch", "critical")]
 
     # Sort: critical first, then watch; secondary sort by occupancy ratio
@@ -220,12 +137,15 @@ def get_nudge(
     Picks the most urgent zone and generates a personalised FanNudge
     for the fan profile supplied via query parameters.
 
+    Does NOT call tick() — reflects the same moment as the last /api/zones
+    call so the nudge is consistent with the dashboard state.
+
     Query params:
       fan_id         (str)  – identifier for the fan
       language       (str)  – ISO 639-1 code, e.g. 'en', 'es', 'fr'
       mobility_needs (bool) – true = step-free route required
     """
-    states = _compute_zone_states()
+    states = SIMULATION.get_current_zone_states()
     target_zone = _most_urgent_zone(states)
 
     fan_profile = {
