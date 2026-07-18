@@ -80,8 +80,8 @@ const MOCK_BRIEFS = [
   }
 ];
 
-// API base URL — change the port here if you run the server elsewhere
-const API_BASE = "http://localhost:8088";
+// API base URL — empty string uses relative paths from the current origin
+const API_BASE = "";
 
 let isLastFetchMocked = false;
 

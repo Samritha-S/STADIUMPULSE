@@ -38,8 +38,8 @@ const SCENARIOS = [
 
 let currentScenarioIndex = 0;
 
-// API base URL — change the port here if you run the server elsewhere
-const API_BASE = "http://localhost:8088";
+// API base URL — empty string uses relative paths from the current origin
+const API_BASE = "";
 
 // Fan profiles per demo scenario — match the 3 existing mock scenarios exactly:
 //   0: EN / no mobility  (normal exit update)

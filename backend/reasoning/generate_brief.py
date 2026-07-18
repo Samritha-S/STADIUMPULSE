@@ -43,7 +43,7 @@ logger = logging.getLogger("stadiumpulse.reasoning")
 # NOTE: Verify model name and pricing at https://ai.google.dev/pricing before
 # any post-hackathon production deployment — Gemini model names evolve quickly.
 # ---------------------------------------------------------------------------
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-1.5-flash"
 
 # Required keys per ControlRoomBrief schema
 BRIEF_REQUIRED_KEYS = {
@@ -276,7 +276,8 @@ def _call_gemini(
         response = chat.send_message(user_message)
         return response.text
     except Exception as exc:
-        logger.error("Gemini API call failed: %s", exc)
+        logger.error("Gemini API call failed. Exception Type: %s, Message: %s", type(exc).__name__, str(exc))
+        print(f"DEBUG GEMINI BRIEF ERROR: {type(exc).__name__} - {str(exc)}", flush=True)
         return None
 
 

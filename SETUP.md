@@ -67,23 +67,19 @@ curl "http://localhost:8088/api/nudge?fan_id=fan_demo&language=en&mobility_needs
 
 ---
 
-## 5. Open the frontend pages
+## 5. Visit the Web Portal
 
-Open the two HTML files directly in a browser (no build step needed):
+Open your web browser and navigate to:
 
-**Control Room Dashboard:**
 ```
-frontend/dashboard/index.html
-```
-
-**Fan Companion View:**
-```
-frontend/fan-view/index.html
+http://localhost:8088/
 ```
 
-> Both pages automatically call `http://localhost:8088` if the server is running.
-> If the server is **not** running, both pages fall back gracefully to built-in mock
-> data — the UI never breaks.
+This landing page provides access to both:
+- **Ops Center Dashboard** (`/admin`)
+- **Fan Companion View** (`/fan`)
+
+Both pages automatically make API requests relatively on the same port they are served from. If the server is not running, both views gracefully display mock data as fallback.
 
 ---
 

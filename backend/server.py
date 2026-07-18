@@ -67,6 +67,117 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+
+# Mount the dashboard under /admin and fan-view under /fan
+# We must use directory absolute paths or paths relative to root.
+# Since the app runs from workspace root, 'frontend/dashboard' and 'frontend/fan-view' are correct.
+app.mount("/admin", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend/dashboard"), html=True), name="admin")
+app.mount("/fan", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend/fan-view"), html=True), name="fan")
+
+@app.get("/", response_class=HTMLResponse)
+def get_landing():
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StadiumPulse Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #0D1117;
+      --surface: #161B22;
+      --border: rgba(255, 255, 255, 0.08);
+      --ink: #E6EDF3;
+      --ink-muted: #7D8590;
+      --accent: #388BFD;
+      --accent-hover: #58A6FF;
+      --font-header: 'Space Grotesk', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+    body {
+      background-color: var(--bg-void);
+      color: var(--ink);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1.5rem;
+      box-sizing: border-box;
+    }
+    .container {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    h1 {
+      font-family: var(--font-header);
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+    }
+    p {
+      color: var(--ink-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .links-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .portal-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-family: var(--font-header);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      background-color: var(--bg-void);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      transition: all 0.2s ease-in-out;
+    }
+    .portal-btn:hover {
+      border-color: var(--accent-hover);
+      box-shadow: 0 0 10px rgba(56, 139, 253, 0.25);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+    .portal-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>StadiumPulse</h1>
+    <p>AI-assisted crowd safety intelligence portal</p>
+    <nav class="links-grid" aria-label="Portal access">
+      <a href="/admin" class="portal-btn" aria-label="Access Ops Center Dashboard">Ops Center Dashboard</a>
+      <a href="/fan" class="portal-btn" aria-label="Access Fan Companion Mobile View">Fan Companion App</a>
+    </nav>
+  </div>
+</body>
+</html>"""
+
+
 
 def _most_urgent_zone(states: List[Dict[str, Any]]) -> Dict[str, Any]:
     """

@@ -26,7 +26,7 @@ StadiumPulse is a proof-of-concept addressing these two gaps simultaneously — 
 
 ```
 SimulationState (ticking)  →  Forecast layer  →  Reasoning layer  →  Two action surfaces
-(simulation_state.py)         (forecast_zone)    (Gemini 2.5 Flash)   (dashboard + fan view)
+(simulation_state.py)         (forecast_zone)    (Gemini 1.5 Flash)   (dashboard + fan view)
 ```
 
 **Layer 1 — Stateful Simulation**
