@@ -4,22 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StadiumPulse — Fan Companion View</title>
-  <!-- Google Fonts for premium typography -->
+  <meta name="description" content="StadiumPulse personalised crowd routing for FIFA World Cup 2026 fans.">
+  <!-- Fonts: Space Grotesk · Inter · JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="mobile-body">
 
-  <!-- Outer layout wrapper to present a realistic mobile device container -->
+  <!-- Phone + demo panel wrapper -->
   <main class="phone-wrapper">
     <div class="phone-frame">
+
+      <!-- Simulated mobile status bar + app nav -->
       <header class="phone-header">
         <div class="phone-status-bar">
-          <span class="phone-time" id="device-time">17:35</span>
+          <span class="phone-time" id="device-time">19:53</span>
           <div class="phone-signals" aria-hidden="true">
-            <!-- Simple SVG icons representing mobile status bar icons -->
             <svg class="icon-signal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
               <path d="M2 11.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
             </svg>
@@ -31,73 +33,103 @@
         </div>
         <div class="app-navbar">
           <div class="app-branding">
-            <span class="pulse-indicator"></span>
+            <span class="pulse-indicator" aria-hidden="true"></span>
             <h2>StadiumPulse</h2>
           </div>
           <span class="app-view-label">Fan Companion</span>
         </div>
       </header>
 
-      <!-- Main screen content area -->
+      <!-- Main nudge + map content -->
       <div class="phone-content">
-        <!-- Live-Updating Nudge Region -->
+
+        <!-- Live nudge region — aria-live keeps screen-reader announcements intact -->
         <section class="nudge-section" aria-labelledby="notification-title">
           <h3 id="notification-title" class="visually-hidden">Live Safety and Traffic Guidance</h3>
-          
           <div class="nudge-box-wrapper" id="nudge-display-wrapper" aria-live="polite">
             <!-- Rendered dynamically by app.js -->
-            <div class="nudge-loading">Loading live updates...</div>
+            <div class="nudge-loading">Receiving route updates…</div>
           </div>
         </section>
 
-        <!-- Simulated interactive map block to give realistic app vibes -->
+        <!-- Simulated interactive map -->
         <section class="map-placeholder" aria-label="Interactive Stadium Map">
-          <div class="map-grid">
-            <div class="map-route-line"></div>
-            <div class="map-node map-node-current">
+          <div class="map-grid" role="img" aria-label="Route map showing your position and destination">
+            <div class="map-route-line" aria-hidden="true"></div>
+            <div class="map-node map-node-current" aria-hidden="true">
               <span class="node-label">You</span>
             </div>
-            <div class="map-node map-node-destination">
+            <div class="map-node map-node-destination" aria-hidden="true">
               <span class="node-label">Destination</span>
             </div>
           </div>
-          <p class="map-caption">Map updating with optimized route directions...</p>
+          <p class="map-caption">Map updating with optimised route directions…</p>
         </section>
-      </div>
 
+      </div><!-- /.phone-content -->
+
+      <!-- Bottom nav -->
       <footer class="phone-footer">
         <nav class="mobile-nav" aria-label="App Navigation">
           <button class="nav-item active" aria-current="page">
-            <span class="nav-icon">📢</span>
+            <span class="nav-icon" aria-hidden="true">📢</span>
             <span class="nav-text">Updates</span>
           </button>
           <button class="nav-item">
-            <span class="nav-icon">🗺️</span>
+            <span class="nav-icon" aria-hidden="true">🗺️</span>
             <span class="nav-text">Map</span>
           </button>
           <button class="nav-item">
-            <span class="nav-icon">🎟️</span>
+            <span class="nav-icon" aria-hidden="true">🎟️</span>
             <span class="nav-text">Tickets</span>
           </button>
         </nav>
       </footer>
-    </div>
 
-    <!-- Demo Controller Box on the outside of the phone frame -->
+    </div><!-- /.phone-frame -->
+
+    <!-- Demo controller — sits outside phone frame -->
     <aside class="demo-controls-panel" aria-label="Hackathon Demo Controller">
       <h4>Demo Controller</h4>
-      <p>Cycle through sample nudge objects generated matching the schema.</p>
-      <button class="btn btn-secondary" id="next-nudge-btn">
+      <p>Select a fan profile — the nudge card polls live every 3 seconds using the active profile.</p>
+
+      <!-- Profile dropdowns passed through to fetchNudge via app.js -->
+      <div class="profile-selector">
+        <label for="lang-select">Language</label>
+        <select id="lang-select" aria-label="Select language for nudge">
+          <option value="en" selected>English (EN)</option>
+          <option value="es">Spanish (ES)</option>
+          <option value="fr">French (FR)</option>
+          <option value="pt">Portuguese (PT)</option>
+          <option value="de">German (DE)</option>
+          <option value="ar">Arabic (AR)</option>
+          <option value="ja">Japanese (JA)</option>
+          <option value="ko">Korean (KO)</option>
+          <option value="zh">Chinese (ZH)</option>
+        </select>
+      </div>
+
+      <div class="profile-selector">
+        <label for="mobility-select">Mobility needs</label>
+        <select id="mobility-select" aria-label="Select mobility needs">
+          <option value="false" selected>No accessibility requirements</option>
+          <option value="true">Step-free / accessible route</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" id="next-nudge-btn" aria-label="Cycle to next demo scenario">
         Next Scenario Example
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
         </svg>
       </button>
-      <div class="demo-scenario-info" id="scenario-info-text">
+
+      <div class="demo-scenario-info" id="scenario-info-text" aria-live="polite">
         Scenario: Normal Exit Update (EN)
       </div>
     </aside>
-  </main>
+
+  </main><!-- /.phone-wrapper -->
 
   <script src="app.js"></script>
 </body>

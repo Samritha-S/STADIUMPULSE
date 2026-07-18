@@ -143,8 +143,12 @@ function renderZones(zones) {
       card = document.createElement("article");
       card.className = "zone-card";
       card.setAttribute("data-zone-id", zone.zone_id);
+      card.setAttribute("data-status", zone.status);
       container.appendChild(card);
     }
+
+    // Always sync data-status so CSS top-stripe updates on every poll
+    card.setAttribute("data-status", zone.status);
 
     card.innerHTML = `
       <div class="zone-card-header">

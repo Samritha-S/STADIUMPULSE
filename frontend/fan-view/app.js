@@ -54,12 +54,21 @@ const SCENARIO_FAN_PROFILES = [
 // ISOLATED DATA FETCH FUNCTION
 // To point at the real backend: the try-block below does it automatically.
 // Fallback to mock data keeps the UI working if the server is not running.
+// Reads lang-select + mobility-select dropdowns if present; falls back to
+// the scenario profile defaults so the existing cycle logic still works.
 async function fetchNudge(index) {
-  const profile = SCENARIO_FAN_PROFILES[index];
+  const baseProfile = SCENARIO_FAN_PROFILES[index];
+
+  // Visual hook: read live selector values if they exist in the new HTML
+  const langEl     = document.getElementById("lang-select");
+  const mobilityEl = document.getElementById("mobility-select");
+  const language       = langEl     ? langEl.value                      : baseProfile.language;
+  const mobility_needs = mobilityEl ? mobilityEl.value === "true"        : baseProfile.mobility_needs;
+
   const params = new URLSearchParams({
-    fan_id:         profile.fan_id,
-    language:       profile.language,
-    mobility_needs: profile.mobility_needs,
+    fan_id:         baseProfile.fan_id,
+    language,
+    mobility_needs,
   });
   try {
     const res = await fetch(`${API_BASE}/api/nudge?${params}`);
@@ -181,11 +190,17 @@ document.addEventListener("DOMContentLoaded", () => {
     loadScenario(currentScenarioIndex, true);
   }, 3000);
 
-  // Next scenarios cycle event
+  // Next scenario cycle — also syncs selectors to match the new profile
   const nextBtn = document.getElementById("next-nudge-btn");
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {
       currentScenarioIndex = (currentScenarioIndex + 1) % MOCK_NUDGES.length;
+      // Sync dropdowns to new profile so displayed state matches what will be fetched
+      const newProfile = SCENARIO_FAN_PROFILES[currentScenarioIndex];
+      const langEl     = document.getElementById("lang-select");
+      const mobilityEl = document.getElementById("mobility-select");
+      if (langEl)     langEl.value     = newProfile.language;
+      if (mobilityEl) mobilityEl.value = String(newProfile.mobility_needs);
       isInitialLoad = true;
       loadScenario(currentScenarioIndex);
     });
