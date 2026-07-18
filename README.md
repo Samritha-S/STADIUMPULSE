@@ -146,7 +146,7 @@ Quick reference:
 ```bash
 pip install fastapi uvicorn python-dotenv google-generativeai
 cp .env.example .env   # then add GEMINI_API_KEY
-uvicorn backend.server:app --reload --port 8080
+uvicorn backend.server:app --reload --port 8088
 python -m unittest discover -s tests -v   # 44 tests, all mocked
 ```
 

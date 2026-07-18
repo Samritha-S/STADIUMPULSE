@@ -49,20 +49,20 @@ account, and click **Create API key**. The free tier is sufficient for hackathon
 
 ```bash
 # From the repo root
-uvicorn backend.server:app --reload --port 8080
+uvicorn backend.server:app --reload --port 8088
 ```
 
 You should see:
 ```
-INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
+INFO:     Uvicorn running on http://127.0.0.1:8088 (Press CTRL+C to quit)
 ```
 
 The API is now live. You can verify each endpoint:
 
 ```bash
-curl http://localhost:8080/api/zones
-curl http://localhost:8080/api/briefs
-curl "http://localhost:8080/api/nudge?fan_id=fan_demo&language=en&mobility_needs=false"
+curl http://localhost:8088/api/zones
+curl http://localhost:8088/api/briefs
+curl "http://localhost:8088/api/nudge?fan_id=fan_demo&language=en&mobility_needs=false"
 ```
 
 ---
@@ -81,7 +81,7 @@ frontend/dashboard/index.html
 frontend/fan-view/index.html
 ```
 
-> Both pages automatically call `http://localhost:8080` if the server is running.
+> Both pages automatically call `http://localhost:8088` if the server is running.
 > If the server is **not** running, both pages fall back gracefully to built-in mock
 > data — the UI never breaks.
 
