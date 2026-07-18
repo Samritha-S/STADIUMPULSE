@@ -28,10 +28,10 @@ pip install fastapi uvicorn python-dotenv google-generativeai
 
 ```bash
 # From the repo root
-cp stadiumpulse/.env.example stadiumpulse/.env
+cp .env.example .env
 ```
 
-Open `stadiumpulse/.env` in any editor and replace the placeholder value:
+Open `.env` in any editor and replace the placeholder value:
 
 ```
 GEMINI_API_KEY=your_real_key_here
@@ -48,22 +48,21 @@ account, and click **Create API key**. The free tier is sufficient for hackathon
 ## 4. Run the backend server
 
 ```bash
-# From the repo root (stadiumpulse/ is the working directory for uvicorn)
-cd stadiumpulse
-uvicorn backend.server:app --reload --port 8000
+# From the repo root
+uvicorn backend.server:app --reload --port 8080
 ```
 
 You should see:
 ```
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
 ```
 
 The API is now live. You can verify each endpoint:
 
 ```bash
-curl http://localhost:8000/api/zones
-curl http://localhost:8000/api/briefs
-curl "http://localhost:8000/api/nudge?fan_id=fan_demo&language=en&mobility_needs=false"
+curl http://localhost:8080/api/zones
+curl http://localhost:8080/api/briefs
+curl "http://localhost:8080/api/nudge?fan_id=fan_demo&language=en&mobility_needs=false"
 ```
 
 ---
@@ -74,15 +73,15 @@ Open the two HTML files directly in a browser (no build step needed):
 
 **Control Room Dashboard:**
 ```
-stadiumpulse/frontend/dashboard/index.html
+frontend/dashboard/index.html
 ```
 
 **Fan Companion View:**
 ```
-stadiumpulse/frontend/fan-view/index.html
+frontend/fan-view/index.html
 ```
 
-> Both pages automatically call `http://localhost:8000` if the server is running.
+> Both pages automatically call `http://localhost:8080` if the server is running.
 > If the server is **not** running, both pages fall back gracefully to built-in mock
 > data — the UI never breaks.
 
@@ -92,10 +91,10 @@ stadiumpulse/frontend/fan-view/index.html
 
 ```bash
 # From the repo root
-python -m unittest discover -s stadiumpulse/tests -v
+python -m unittest discover -s tests -v
 ```
 
-Expected: **32 tests, OK** (tests are fully mocked — no API key needed).
+Expected: **44 tests, OK** (tests are fully mocked — no API key needed).
 
 ---
 

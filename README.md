@@ -145,9 +145,9 @@ Quick reference:
 
 ```bash
 pip install fastapi uvicorn python-dotenv google-generativeai
-cp stadiumpulse/.env.example stadiumpulse/.env   # then add GEMINI_API_KEY
-cd stadiumpulse && uvicorn backend.server:app --reload --port 8000
-python -m unittest discover -s stadiumpulse/tests -v   # 32 tests, all mocked
+cp .env.example .env   # then add GEMINI_API_KEY
+uvicorn backend.server:app --reload --port 8080
+python -m unittest discover -s tests -v   # 44 tests, all mocked
 ```
 
 ---
@@ -155,7 +155,7 @@ python -m unittest discover -s stadiumpulse/tests -v   # 32 tests, all mocked
 ## Repository Layout
 
 ```
-stadiumpulse/
+STADIUMPULSE/
 ├── backend/
 │   ├── forecast/
 │   │   ├── data_generator.py      # Synthetic crowd time-series generation
@@ -168,13 +168,15 @@ stadiumpulse/
 │   │   ├── ZoneState.json         # Shared data schema
 │   │   ├── ControlRoomBrief.json  # Shared data schema
 │   │   └── FanNudge.json          # Shared data schema
-│   └── server.py                  # FastAPI server: /api/zones, /api/briefs, /api/nudge
+│   ├── server.py                  # FastAPI server: /api/zones, /api/briefs, /api/nudge
+│   └── simulation_state.py        # Stateful ticking simulation engine
 ├── frontend/
 │   ├── dashboard/                 # Control-room web UI (HTML/CSS/JS)
 │   └── fan-view/                  # Fan mobile mockup (HTML/CSS/JS)
 ├── tests/
-│   └── test_reasoning.py          # 32 unit tests (fully mocked, no API key needed)
-│   └── test_forecast.py
+│   ├── test_reasoning.py          # Unit tests (fully mocked)
+│   ├── test_forecast.py           # Unit tests
+│   └── test_simulation_state.py   # Unit tests for ticking engine
 ├── .env.example                   # Environment variable template
 ├── SETUP.md                       # Step-by-step setup guide
 └── README.md                      # This file
