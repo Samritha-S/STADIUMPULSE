@@ -83,15 +83,19 @@ const MOCK_BRIEFS = [
 // API base URL — change the port here if you run the server elsewhere
 const API_BASE = "http://localhost:8000";
 
+let isLastFetchMocked = false;
+
 // ISOLATED DATA FETCH FUNCTIONS
 // To swap between mock and live: change only these two functions.
 async function fetchZoneStates() {
   try {
     const res = await fetch(`${API_BASE}/api/zones`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    isLastFetchMocked = false;
     return await res.json();
   } catch (err) {
     console.warn("[StadiumPulse] /api/zones unreachable, using mock data.", err.message);
+    isLastFetchMocked = true;
     return MOCK_ZONES;
   }
 }
@@ -101,11 +105,13 @@ async function fetchLatestBriefs() {
     const res = await fetch(`${API_BASE}/api/briefs`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    isLastFetchMocked = false;
     // If the server returned no briefs (all zones normal), fall back to mock
     // so the demo always has something to show in the brief feed panel.
     return data.length > 0 ? data : MOCK_BRIEFS;
   } catch (err) {
     console.warn("[StadiumPulse] /api/briefs unreachable, using mock data.", err.message);
+    isLastFetchMocked = true;
     return MOCK_BRIEFS;
   }
 }
@@ -120,36 +126,59 @@ function renderZones(zones) {
     return;
   }
 
-  container.innerHTML = zones.map(zone => {
+  // Clear initial loading state
+  if (container.querySelector(".loading-state")) {
+    container.innerHTML = "";
+  }
+
+  // Update zone cards in place to avoid flickering and retain layout
+  zones.forEach(zone => {
     const occupancyPercentage = Math.round((zone.current_count / zone.capacity) * 100);
     let statusClass = "status-badge-normal";
     if (zone.status === "watch") statusClass = "status-badge-watch";
     if (zone.status === "critical") statusClass = "status-badge-critical";
 
-    return `
-      <article class="zone-card" data-zone-id="${zone.zone_id}">
-        <div class="zone-card-header">
-          <h3 class="zone-name">${escapeHtml(zone.zone_name)}</h3>
-          <span class="status-badge ${statusClass}">${escapeHtml(zone.status)}</span>
+    let card = container.querySelector(`[data-zone-id="${zone.zone_id}"]`);
+    if (!card) {
+      card = document.createElement("article");
+      card.className = "zone-card";
+      card.setAttribute("data-zone-id", zone.zone_id);
+      container.appendChild(card);
+    }
+
+    card.innerHTML = `
+      <div class="zone-card-header">
+        <h3 class="zone-name">${escapeHtml(zone.zone_name)}</h3>
+        <span class="status-badge ${statusClass}">${escapeHtml(zone.status)}</span>
+      </div>
+      <div class="zone-stats-list">
+        <div class="stat-item">
+          <span class="stat-label">Current Count</span>
+          <span class="stat-value">${zone.current_count}</span>
         </div>
-        <div class="zone-stats-list">
-          <div class="stat-item">
-            <span class="stat-label">Current Count</span>
-            <span class="stat-value">${zone.current_count}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Capacity (Limit)</span>
-            <span class="stat-value">${zone.capacity} (${occupancyPercentage}%)</span>
-          </div>
+        <div class="stat-item">
+          <span class="stat-label">Capacity (Limit)</span>
+          <span class="stat-value">${zone.capacity} (${occupancyPercentage}%)</span>
         </div>
-        <div class="zone-forecast-bar">
-          <div>Forecast 15m: <span class="forecast-val">${zone.forecast_count_15min}</span></div>
-          <div>Forecast 30m: <span class="forecast-val">${zone.forecast_count_30min}</span></div>
-        </div>
-      </article>
+      </div>
+      <div class="zone-forecast-bar">
+        <div>Forecast 15m: <span class="forecast-val">${zone.forecast_count_15min}</span></div>
+        <div>Forecast 30m: <span class="forecast-val">${zone.forecast_count_30min}</span></div>
+      </div>
     `;
-  }).join("");
+  });
+
+  // Remove any cards that are no longer active
+  const activeIds = new Set(zones.map(z => z.zone_id));
+  container.querySelectorAll("[data-zone-id]").forEach(card => {
+    const cid = card.getAttribute("data-zone-id");
+    if (!activeIds.has(cid)) {
+      card.remove();
+    }
+  });
 }
+
+const renderedBriefSignatures = new Set();
 
 function renderBriefs(briefs) {
   const container = document.getElementById("brief-feed-container");
@@ -160,31 +189,77 @@ function renderBriefs(briefs) {
     return;
   }
 
-  container.innerHTML = briefs.map(brief => {
-    const formattedTime = new Date(brief.generated_at).toLocaleTimeString();
-    let severityLabel = brief.severity.toUpperCase();
+  // Clear initial loading state
+  if (container.querySelector(".loading-state")) {
+    container.innerHTML = "";
+  }
 
-    return `
-      <article class="brief-card brief-${brief.severity}">
-        <div class="brief-card-header">
-          <span class="brief-zone-id">Zone: ${escapeHtml(brief.zone_id)}</span>
-          <span class="brief-time">${formattedTime}</span>
+  const existingBriefCards = {};
+  container.querySelectorAll("[data-brief-id]").forEach(card => {
+    existingBriefCards[card.getAttribute("data-brief-id")] = card;
+  });
+
+  const activeSignatures = new Set();
+
+  briefs.forEach(brief => {
+    const signature = `${brief.zone_id}_${brief.severity}_${brief.summary_text.slice(0, 30)}`;
+    activeSignatures.add(signature);
+
+    const isNew = !renderedBriefSignatures.has(signature);
+    if (isNew) {
+      renderedBriefSignatures.add(signature);
+    }
+
+    const formattedTime = new Date(brief.generated_at).toLocaleTimeString();
+    const severityLabel = brief.severity.toUpperCase();
+
+    let card = existingBriefCards[signature];
+    if (!card) {
+      card = document.createElement("article");
+      card.setAttribute("data-brief-id", signature);
+      container.appendChild(card);
+    }
+
+    card.className = `brief-card brief-${brief.severity}` + (isNew ? " new-brief-highlight" : "");
+
+    card.innerHTML = `
+      <div class="brief-card-header">
+        <span class="brief-zone-id">Zone: ${escapeHtml(brief.zone_id)}</span>
+        <span class="brief-time">
+          ${formattedTime}
+          ${isNew ? `<span class="brief-new-badge">NEW</span>` : ''}
+        </span>
+      </div>
+      <p class="brief-summary">
+        <strong>[${severityLabel}]</strong> ${escapeHtml(brief.summary_text)}
+      </p>
+      <div class="brief-action-box">
+        <span class="action-label">Recommended Action</span>
+        <p class="brief-action-text">${escapeHtml(brief.recommended_action)}</p>
+      </div>
+      ${brief.suggested_reroute_zone !== "none" ? `
+        <div class="brief-reroute-tag">
+          Suggested Reroute: <strong>${escapeHtml(brief.suggested_reroute_zone)}</strong>
         </div>
-        <p class="brief-summary">
-          <strong>[${severityLabel}]</strong> ${escapeHtml(brief.summary_text)}
-        </p>
-        <div class="brief-action-box">
-          <span class="action-label">Recommended Action</span>
-          <p class="brief-action-text">${escapeHtml(brief.recommended_action)}</p>
-        </div>
-        ${brief.suggested_reroute_zone !== "none" ? `
-          <div class="brief-reroute-tag">
-            Suggested Reroute: <strong>${escapeHtml(brief.suggested_reroute_zone)}</strong>
-          </div>
-        ` : ''}
-      </article>
+      ` : ''}
     `;
-  }).join("");
+  });
+
+  // Remove stale briefs
+  Object.keys(existingBriefCards).forEach(sig => {
+    if (!activeSignatures.has(sig)) {
+      existingBriefCards[sig].remove();
+    }
+  });
+
+  // Maintain severity order by re-appending in order of the active list
+  briefs.forEach(brief => {
+    const signature = `${brief.zone_id}_${brief.severity}_${brief.summary_text.slice(0, 30)}`;
+    const card = container.querySelector(`[data-brief-id="${signature}"]`);
+    if (card) {
+      container.appendChild(card);
+    }
+  });
 }
 
 // Helper: Escape HTML strings to prevent XSS
@@ -197,16 +272,38 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+let consecutiveFailures = 0;
+let pollingIntervalId = null;
+
 // Refresh triggers
 async function loadDashboardData() {
-  document.getElementById("zone-grid-container").innerHTML = `<div class="loading-state">Updating zones...</div>`;
-  document.getElementById("brief-feed-container").innerHTML = `<div class="loading-state">Updating briefs...</div>`;
-
   try {
     const [zones, briefs] = await Promise.all([
       fetchZoneStates(),
       fetchLatestBriefs()
     ]);
+
+    if (isLastFetchMocked) {
+      consecutiveFailures++;
+    } else {
+      consecutiveFailures = 0;
+    }
+
+    const liveIndicator = document.getElementById("live-indicator");
+    if (liveIndicator) {
+      if (consecutiveFailures >= 3) {
+        liveIndicator.textContent = "● PAUSED (OFFLINE)";
+        liveIndicator.classList.add("paused");
+        if (pollingIntervalId) {
+          clearInterval(pollingIntervalId);
+          pollingIntervalId = null;
+        }
+      } else {
+        liveIndicator.textContent = "● LIVE";
+        liveIndicator.classList.remove("paused");
+      }
+    }
+
     renderZones(zones);
     renderBriefs(briefs);
   } catch (error) {
@@ -230,11 +327,23 @@ document.addEventListener("DOMContentLoaded", () => {
   updateClock();
   setInterval(updateClock, 1000);
 
-  // Manual refresh hook
+  // Setup auto-polling every 3 seconds
+  pollingIntervalId = setInterval(loadDashboardData, 3000);
+
+  // Manual refresh hook (resets offline pauses)
   const refreshBtn = document.getElementById("refresh-btn");
   if (refreshBtn) {
     refreshBtn.addEventListener("click", () => {
+      consecutiveFailures = 0;
+      const liveIndicator = document.getElementById("live-indicator");
+      if (liveIndicator) {
+        liveIndicator.textContent = "● LIVE";
+        liveIndicator.classList.remove("paused");
+      }
       loadDashboardData();
+      if (!pollingIntervalId) {
+        pollingIntervalId = setInterval(loadDashboardData, 3000);
+      }
     });
   }
 });

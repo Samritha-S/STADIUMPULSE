@@ -72,11 +72,12 @@ async function fetchNudge(index) {
 }
 
 // RENDER LOGIC
+let lastNudgeSignature = "";
+
 function renderNudge(nudge, urgency) {
   const displayWrapper = document.getElementById("nudge-display-wrapper");
   if (!displayWrapper) return;
 
-  const formattedTime = new Date(nudge.generated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const isMobility = nudge.mobility_needs;
   
   let nudgeClass = "nudge-low";
@@ -93,8 +94,14 @@ function renderNudge(nudge, urgency) {
     labelText = "Optimized Egress";
   }
 
+  const signature = `${urgency}_${nudge.message_text}`;
+  const isChanged = lastNudgeSignature && lastNudgeSignature !== signature;
+  lastNudgeSignature = signature;
+
+  const highlightClass = isChanged ? " nudge-highlight" : "";
+
   displayWrapper.innerHTML = `
-    <article class="nudge-card ${nudgeClass}">
+    <article class="nudge-card ${nudgeClass}${highlightClass}">
       <div class="nudge-meta-bar">
         <span class="urgency-badge ${badgeClass}">${labelText}</span>
         <span class="lang-indicator">${nudge.language.toUpperCase()}</span>
@@ -137,10 +144,15 @@ function updateClock() {
   }
 }
 
+let isInitialLoad = true;
+
 // Load Nudge scenario
-async function loadScenario(index) {
+async function loadScenario(index, isPoll = false) {
   const wrapper = document.getElementById("nudge-display-wrapper");
-  wrapper.innerHTML = `<div class="nudge-loading">Receiving route updates...</div>`;
+  if (isInitialLoad && !isPoll) {
+    wrapper.innerHTML = `<div class="nudge-loading">Receiving route updates...</div>`;
+    isInitialLoad = false;
+  }
 
   try {
     const nudge = await fetchNudge(index);
@@ -154,6 +166,8 @@ async function loadScenario(index) {
   }
 }
 
+let pollingIntervalId = null;
+
 // Lifecycle Hooks
 document.addEventListener("DOMContentLoaded", () => {
   loadScenario(currentScenarioIndex);
@@ -162,11 +176,17 @@ document.addEventListener("DOMContentLoaded", () => {
   updateClock();
   setInterval(updateClock, 30000);
 
+  // Poll fetchNudge every 3 seconds using the current active scenario profile
+  pollingIntervalId = setInterval(() => {
+    loadScenario(currentScenarioIndex, true);
+  }, 3000);
+
   // Next scenarios cycle event
   const nextBtn = document.getElementById("next-nudge-btn");
   if (nextBtn) {
     nextBtn.addEventListener("click", () => {
       currentScenarioIndex = (currentScenarioIndex + 1) % MOCK_NUDGES.length;
+      isInitialLoad = true;
       loadScenario(currentScenarioIndex);
     });
   }
