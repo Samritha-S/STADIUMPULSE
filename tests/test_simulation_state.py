@@ -49,15 +49,18 @@ MINIMAL_ZONE_DEFS = [
 
 ESCALATING_ONLY_DEFS = [
     {
-        "zone_id": "zone_south_main",
-        "zone_name": "South Main Concourse",
-        "capacity": 800,
+        # Mirrors the production zone_300_gate_f definition from ZONE_DEFS.
+        # Capacity matches the real MetLife Stadium scale so escalation
+        # thresholds (>90% of 18,000) are exercised correctly.
+        "zone_id": "zone_300_gate_f",
+        "zone_name": "300 Level – Gate F Concourse",
+        "capacity": 18000,
         "scenario_type": "escalating",
         "metadata": {
-            "zone_id": "zone_south_main",
-            "zone_name": "South Main Concourse",
-            "connected_gates": ["gate_1", "gate_2"],
-            "accessible_routes": ["ramp_south_1", "elevator_south"],
+            "zone_id": "zone_300_gate_f",
+            "zone_name": "300 Level – Gate F Concourse",
+            "connected_gates": ["gate_f", "gate_g"],
+            "accessible_routes": ["ramp_300_west", "elevator_300_f"],
         },
     }
 ]
@@ -83,13 +86,13 @@ class TestTickAdvancesZoneCounts(unittest.TestCase):
         and assert the last count is greater than the seed.
         """
         sim = SimulationState(ESCALATING_ONLY_DEFS)
-        seed_count = sim.get_history("zone_south_main")[0]
+        seed_count = sim.get_history("zone_300_gate_f")[0]
 
         for _ in range(8):
             sim.tick()
 
-        latest_count = sim.get_history("zone_south_main")[-1]
-        # The escalating curve adds ~2.5% of 800 (~20) per tick before noise;
+        latest_count = sim.get_history("zone_300_gate_f")[-1]
+        # The escalating curve adds ~2.5% of 18,000 (~450) per tick before noise;
         # over 8 ticks from seed tick ≥5, the count should be clearly higher.
         self.assertGreater(latest_count, seed_count,
             msg=f"Expected count to climb over 8 ticks; seed={seed_count}, latest={latest_count}")
@@ -147,7 +150,7 @@ class TestEscalatingZoneReachesCritical(unittest.TestCase):
         for t in range(1, 21):  # allow up to 20 ticks as a safety margin
             sim.tick()
             states = sim.get_current_zone_states()
-            zone_state = next(z for z in states if z["zone_id"] == "zone_south_main")
+            zone_state = next(z for z in states if z["zone_id"] == "zone_300_gate_f")
             if zone_state["status"] == "critical":
                 reached_critical = True
                 ticks_to_critical = t

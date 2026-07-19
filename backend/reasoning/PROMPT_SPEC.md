@@ -232,15 +232,15 @@ TRANSIT TIP (transit_tip field):
 ```json
 {
   "zone_state": {
-    "zone_id": "zone_east_concourse",
-    "zone_name": "East Concourse",
-    "current_count": 180,
-    "capacity": 800,
-    "forecast_count_15min": 195,
-    "forecast_count_30min": 210,
+    "zone_id": "zone_100_gate_a",
+    "zone_name": "100 Level – Gate A Concourse",
+    "current_count": 4200,
+    "capacity": 19500,
+    "forecast_count_15min": 4500,
+    "forecast_count_30min": 4900,
     "status": "normal",
-    "connected_gates": ["gate_5", "gate_6"],
-    "accessible_routes": ["ramp_east_1", "elevator_east"]
+    "connected_gates": ["gate_a", "gate_b"],
+    "accessible_routes": ["ramp_100_east", "elevator_100_a"]
   },
   "fan_profile": {
     "fan_id": "fan_4821",
@@ -256,8 +256,8 @@ TRANSIT TIP (transit_tip field):
   "fan_id": "fan_4821",
   "language": "en",
   "mobility_needs": false,
-  "message_text": "Just a heads-up — gate 5 has shorter lines right now if you're heading out.",
-  "suggested_route": "gate_5",
+  "message_text": "Just a heads-up — gate a has shorter lines right now if you're heading out.",
+  "suggested_route": "gate_a",
   "transit_tip": "Taking the metro tonight? It's quicker than the car park and better for the planet.",
   "generated_at": "2026-07-09T14:30:00Z"
 }
@@ -269,15 +269,15 @@ TRANSIT TIP (transit_tip field):
 ```json
 {
   "zone_state": {
-    "zone_id": "zone_north_gate3",
-    "zone_name": "North Concourse Gate 3",
-    "current_count": 580,
-    "capacity": 800,
-    "forecast_count_15min": 640,
-    "forecast_count_30min": 710,
+    "zone_id": "zone_200_gate_c",
+    "zone_name": "200 Level – Gate C Concourse",
+    "current_count": 13000,
+    "capacity": 18000,
+    "forecast_count_15min": 14400,
+    "forecast_count_30min": 16000,
     "status": "watch",
-    "connected_gates": ["gate_3", "gate_4"],
-    "accessible_routes": ["ramp_north_1", "elevator_north"]
+    "connected_gates": ["gate_c", "gate_d"],
+    "accessible_routes": ["ramp_200_north", "elevator_200_c"]
   },
   "fan_profile": {
     "fan_id": "fan_1137",
@@ -293,8 +293,8 @@ TRANSIT TIP (transit_tip field):
   "fan_id": "fan_1137",
   "language": "es",
   "mobility_needs": true,
-  "message_text": "Te recomendamos dirigirte a la rampa norte 1 para una salida más cómoda y rápida. ¡Buen partido!",
-  "suggested_route": "ramp_north_1",
+  "message_text": "Te recomendamos dirigirte a la rampa norte 200 para una salida más cómoda y rápida. ¡Buen partido!",
+  "suggested_route": "ramp_200_north",
   "transit_tip": "El metro línea 2 desde la salida norte evita los atascos de tráfico.",
   "generated_at": "2026-07-09T14:30:00Z"
 }
@@ -306,15 +306,15 @@ TRANSIT TIP (transit_tip field):
 ```json
 {
   "zone_state": {
-    "zone_id": "zone_south_main",
-    "zone_name": "South Main Concourse",
-    "current_count": 740,
-    "capacity": 800,
-    "forecast_count_15min": 830,
-    "forecast_count_30min": 900,
+    "zone_id": "zone_300_gate_f",
+    "zone_name": "300 Level – Gate F Concourse",
+    "current_count": 16600,
+    "capacity": 18000,
+    "forecast_count_15min": 18600,
+    "forecast_count_30min": 20200,
     "status": "critical",
-    "connected_gates": ["gate_1", "gate_2"],
-    "accessible_routes": ["ramp_south_1", "elevator_south"]
+    "connected_gates": ["gate_f", "gate_g"],
+    "accessible_routes": ["ramp_300_west", "elevator_300_f"]
   },
   "fan_profile": {
     "fan_id": "fan_3302",
@@ -330,9 +330,9 @@ TRANSIT TIP (transit_tip field):
   "fan_id": "fan_3302",
   "language": "fr",
   "mobility_needs": false,
-  "message_text": "Pour sortir plus rapidement, nous vous conseillons de vous diriger vers la porte 2 — c'est l'itinéraire le plus fluide en ce moment.",
-  "suggested_route": "gate_2",
-  "transit_tip": "Le bus navette depuis la porte 2 est plus rapide que la file de taxis ce soir.",
+  "message_text": "Pour sortir plus rapidement, nous vous conseillons de vous diriger vers la porte f — c'est l'itinéraire le plus fluide en ce moment.",
+  "suggested_route": "gate_f",
+  "transit_tip": "Le bus navette depuis la porte f est plus rapide que la file de taxis ce soir.",
   "generated_at": "2026-07-09T14:30:00Z"
 }
 ```

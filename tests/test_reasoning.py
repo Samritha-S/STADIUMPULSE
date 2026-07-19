@@ -37,39 +37,42 @@ from reasoning.generate_nudge import (
 # Shared test fixtures
 # ---------------------------------------------------------------------------
 
+# Critical zone — mirrors production zone_300_gate_f (escalating)
 ZONE_STATE_CRITICAL = {
-    "zone_id": "zone_south_main",
-    "zone_name": "South Main Concourse",
-    "current_count": 740,
-    "capacity": 800,
-    "forecast_count_15min": 830,
-    "forecast_count_30min": 900,
+    "zone_id": "zone_300_gate_f",
+    "zone_name": "300 Level – Gate F Concourse",
+    "current_count": 16900,
+    "capacity": 18000,
+    "forecast_count_15min": 17500,
+    "forecast_count_30min": 18900,
     "status": "critical",
-    "connected_gates": ["gate_1", "gate_2"],
-    "accessible_routes": ["ramp_south_1", "elevator_south"],
+    "connected_gates": ["gate_f", "gate_g"],
+    "accessible_routes": ["ramp_300_west", "elevator_300_f"],
 }
 
+# Normal zone — mirrors production zone_100_gate_a
 ZONE_STATE_NORMAL = {
-    "zone_id": "zone_east_concourse",
-    "zone_name": "East Concourse",
-    "current_count": 180,
-    "capacity": 800,
-    "forecast_count_15min": 195,
-    "forecast_count_30min": 210,
+    "zone_id": "zone_100_gate_a",
+    "zone_name": "100 Level – Gate A Concourse",
+    "current_count": 6800,
+    "capacity": 19500,
+    "forecast_count_15min": 7200,
+    "forecast_count_30min": 7500,
     "status": "normal",
-    "connected_gates": ["gate_5", "gate_6"],
-    "accessible_routes": ["ramp_east_1", "elevator_east"],
+    "connected_gates": ["gate_a", "gate_b"],
+    "accessible_routes": ["ramp_100_east", "elevator_100_a"],
 }
 
+# Watch zone with no accessible routes — used for mobility edge-case tests
 ZONE_STATE_NO_ACCESSIBLE = {
-    "zone_id": "zone_west_standing",
-    "zone_name": "West Standing Area",
-    "current_count": 500,
-    "capacity": 600,
-    "forecast_count_15min": 550,
-    "forecast_count_30min": 580,
+    "zone_id": "zone_200_gate_c",
+    "zone_name": "200 Level – Gate C Concourse",
+    "current_count": 14500,
+    "capacity": 18000,
+    "forecast_count_15min": 15200,
+    "forecast_count_30min": 16100,
     "status": "watch",
-    "connected_gates": ["gate_7"],
+    "connected_gates": ["gate_c"],
     "accessible_routes": [],
 }
 
@@ -80,11 +83,11 @@ FAN_PROFILE_MOBILITY_NO_ROUTES = {"fan_id": "fan_400", "language": "en", "mobili
 
 # A valid mock LLM response for a brief (JSON string — mirrors what response.text returns)
 VALID_BRIEF_RESPONSE = json.dumps({
-    "zone_id": "zone_south_main",
+    "zone_id": "zone_300_gate_f",
     "severity": "critical",
-    "summary_text": "South Main Concourse is at 92% capacity.",
-    "recommended_action": "Deploy staff to gate 1 and gate 2.",
-    "suggested_reroute_zone": "ramp_south_1",
+    "summary_text": "300 Level Gate F Concourse is at 94% capacity.",
+    "recommended_action": "Deploy staff to gate F and gate G.",
+    "suggested_reroute_zone": "ramp_300_west",
     "languages_needed": ["en", "es"],
     "generated_at": "2026-07-09T14:30:00Z",
 })
@@ -95,8 +98,8 @@ VALID_NUDGE_RESPONSE = json.dumps({
     "fan_id": "fan_100",
     "language": "en",
     "mobility_needs": False,
-    "message_text": "Just a heads-up — gate 5 has shorter lines right now.",
-    "suggested_route": "gate_5",
+    "message_text": "Just a heads-up — gate A has shorter lines right now.",
+    "suggested_route": "gate_a",
     "transit_tip": "Taking the metro tonight? It's quicker than the car park.",
     "generated_at": "2026-07-09T14:30:00Z",
 })
@@ -107,8 +110,8 @@ VALID_NUDGE_RESPONSE_NO_TIP = json.dumps({
     "fan_id": "fan_100",
     "language": "en",
     "mobility_needs": False,
-    "message_text": "Just a heads-up — gate 5 has shorter lines right now.",
-    "suggested_route": "gate_5",
+    "message_text": "Just a heads-up — gate A has shorter lines right now.",
+    "suggested_route": "gate_a",
     "generated_at": "2026-07-09T14:30:00Z",
 })
 
@@ -129,7 +132,7 @@ class TestGenerateBrief(unittest.TestCase):
 
         self.assertIsInstance(result, dict)
         self.assertTrue(BRIEF_REQUIRED_KEYS.issubset(result.keys()))
-        self.assertEqual(result["zone_id"], "zone_south_main")
+        self.assertEqual(result["zone_id"], "zone_300_gate_f")
         self.assertEqual(result["severity"], "critical")
         self.assertIn("summary_text", result)
         self.assertIn("recommended_action", result)
@@ -157,7 +160,7 @@ class TestGenerateBrief(unittest.TestCase):
 
         result = generate_brief(ZONE_STATE_CRITICAL)
 
-        self.assertEqual(result["zone_id"], "zone_south_main")
+        self.assertEqual(result["zone_id"], "zone_300_gate_f")
         self.assertEqual(result["severity"], "critical")
         # Should succeed on first call (Tier 1), so _call_gemini called once
         mock_gemini.assert_called_once()
@@ -170,7 +173,7 @@ class TestGenerateBrief(unittest.TestCase):
 
         result = generate_brief(ZONE_STATE_CRITICAL)
 
-        self.assertEqual(result["zone_id"], "zone_south_main")
+        self.assertEqual(result["zone_id"], "zone_300_gate_f")
         self.assertEqual(mock_gemini.call_count, 2)
 
     @patch("reasoning.generate_brief._call_gemini")
@@ -180,7 +183,7 @@ class TestGenerateBrief(unittest.TestCase):
 
         result = generate_brief(ZONE_STATE_CRITICAL)
 
-        self.assertEqual(result["zone_id"], "zone_south_main")
+        self.assertEqual(result["zone_id"], "zone_300_gate_f")
         self.assertEqual(result["severity"], "critical")  # critical -> critical
         self.assertIn("Automated summary unavailable", result["summary_text"])
         self.assertIn("LLM summary generation failed", result["recommended_action"])
@@ -202,7 +205,7 @@ class TestGenerateBrief(unittest.TestCase):
 
         result = generate_brief(ZONE_STATE_CRITICAL)
 
-        self.assertEqual(result["suggested_reroute_zone"], "ramp_south_1")
+        self.assertEqual(result["suggested_reroute_zone"], "ramp_300_west")
 
     @patch("reasoning.generate_brief._call_gemini")
     def test_fallback_reroute_none_when_no_routes(self, mock_gemini):
@@ -256,8 +259,8 @@ class TestGenerateNudge(unittest.TestCase):
             "fan_id": "fan_300",
             "language": "en",
             "mobility_needs": False,
-            "message_text": "Gate 5 has shorter lines right now.",
-            "suggested_route": "gate_5",
+            "message_text": "Gate A has shorter lines right now.",
+            "suggested_route": "gate_a",
             "generated_at": "2026-07-09T14:30:00Z",
         })
         mock_gemini.return_value = en_response
@@ -302,7 +305,7 @@ class TestGenerateNudge(unittest.TestCase):
 
         result = generate_nudge(ZONE_STATE_CRITICAL, FAN_PROFILE_ES_MOBILITY)
 
-        self.assertEqual(result["suggested_route"], "ramp_south_1")
+        self.assertEqual(result["suggested_route"], "ramp_300_west")
         self.assertIn(result["suggested_route"], ZONE_STATE_CRITICAL["accessible_routes"])
 
     @patch("reasoning.generate_nudge._call_gemini")
@@ -327,7 +330,7 @@ class TestGenerateNudge(unittest.TestCase):
         self.assertIn("suggested_route", result)
         self.assertIn("message_text", result)
         # Fallback should pick from connected_gates since mobility_needs is False
-        self.assertEqual(result["suggested_route"], "gate_5")
+        self.assertEqual(result["suggested_route"], "gate_a")
 
     @patch("reasoning.generate_nudge._call_gemini")
     def test_json_with_surrounding_prose_tier1_strips(self, mock_gemini):
@@ -351,7 +354,7 @@ class TestGenerateNudge(unittest.TestCase):
         self.assertEqual(result["fan_id"], "fan_123")
         self.assertEqual(result["language"], "es")
         self.assertIn("Para una salida más cómoda", result["message_text"])
-        self.assertEqual(result["suggested_route"], "gate_5")
+        self.assertEqual(result["suggested_route"], "gate_a")
 
 
 # ===================================================================

@@ -244,7 +244,7 @@ def get_landing():
 <body>
   <div class="container">
     <h1>StadiumPulse</h1>
-    <p class="positioning-copy">Real-time crowd flow forecasting and AI-assisted safety routing for FIFA World Cup 2026 operations.</p>
+    <p class="positioning-copy">Real-time crowd flow forecasting and AI-assisted safety routing for MetLife Stadium — FIFA World Cup 2026 Final, July 19.</p>
     
     <nav class="portal-grid" aria-label="Portal access">
       <a href="/admin" class="portal-card" aria-label="Access Ops Center Dashboard">

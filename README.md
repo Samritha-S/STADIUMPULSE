@@ -134,8 +134,9 @@ The forecast uses linear regression over the most recent five data points to est
 **In-memory state only — no persistence across server restarts**
 `SimulationState` lives entirely in process memory. Restarting the server resets the simulation to tick 0. For a hackathon demo this is fine; a production system would persist zone histories to a time-series database and resume from the last known state on restart.
 
-**Four zones, one venue**
-The demo hardcodes four zones in a single notional stadium. FIFA World Cup 2026 has 16 venues across three countries, each with dozens of zones and complex interconnection graphs. A production system would need a graph model of zone adjacency, dynamic routing across the full venue, and zone-level capacity data from each stadium's BIM model.
+**Four zones, one venue (MetLife Stadium)**
+The simulation and data models are grounded in a real venue: **MetLife Stadium (East Rutherford, NJ)**, using its real tournament capacity configuration of **78,576** for the FIFA World Cup 2026 Final on July 19, 2026. The zone capacities (~18,000–20,000 each) and the naming conventions represent the stadium concourse levels (100, 200, 300, Field) and gate letters (A–G). While this provides highly realistic sizing for demo simulations, exact gate and concourse boundary assignments are a reasonable approximation for demo purposes and are not sourced from official FIFA or venue-owner documents.
+
 
 **10 supported languages, no human review of safety-critical translations**
 The supported language set (`en`, `es`, `fr`, `pt`, `de`, `ar`, `it`, `ja`, `ko`, `zh`) covers the major attending-nation languages for FIFA 2026 but not all of them. More critically, in a real crowd-safety context, AI-generated safety messages should be reviewed by native-speaker safety communication professionals before deployment — Gemini's phrasing is fluent but not certified. The tone rules (no alarming words, reassuring framing) are enforced in the system prompt but cannot be guaranteed by the model in all edge cases.

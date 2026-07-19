@@ -29,63 +29,78 @@ from forecast.forecast_service import forecast_zone
 MAX_HISTORY_LEN = 20
 
 # ---------------------------------------------------------------------------
-# Zone definitions — mirrors server.py's ZONE_DEFS exactly so there is a
-# single source of truth.  server.py imports ZONE_DEFS from here after this
-# refactor.
+# Zone definitions — MetLife Stadium, East Rutherford, NJ
+# Host venue for the FIFA World Cup 2026 Final, July 19 2026.
+#
+# Real capacity: 78,576 (tournament configuration).
+# Four zones modelled here representing the main concourse levels.
+# Combined zone capacity of ~74,000 covers the bulk of spectator circulation
+# areas; suite/club-level capacity (~4,500) is excluded from crowd-flow
+# modelling for this demo.
+#
+# NOTE: Zone names and gate letters follow the NFL-convention used at MetLife
+# (levels 100/200/300, gates A–H).  Specific concourse-to-gate assignments
+# are a reasonable approximation for demo purposes and are NOT sourced from
+# official FIFA venue documents or MetLife Stadium operations manuals.
 # ---------------------------------------------------------------------------
 
 ZONE_DEFS: List[Dict[str, Any]] = [
     {
-        "zone_id": "zone_east_concourse",
-        "zone_name": "East Concourse",
-        "capacity": 800,
+        # 100 Level lower-bowl concourse — steady normal flow for most of the match
+        "zone_id": "zone_100_gate_a",
+        "zone_name": "100 Level – Gate A Concourse",
+        "capacity": 19500,
         "scenario_type": "normal",
         "metadata": {
-            "zone_id": "zone_east_concourse",
-            "zone_name": "East Concourse",
-            "connected_gates": ["gate_5", "gate_6"],
-            "accessible_routes": ["ramp_east_1", "elevator_east"],
+            "zone_id": "zone_100_gate_a",
+            "zone_name": "100 Level – Gate A Concourse",
+            "connected_gates": ["gate_a", "gate_b"],
+            "accessible_routes": ["ramp_100_east", "elevator_100_a"],
         },
     },
     {
-        "zone_id": "zone_north_gate3",
-        "zone_name": "North Concourse Gate 3",
-        "capacity": 800,
+        # 200 Level mid-tier concourse — experiences a spike surge post-kickoff
+        "zone_id": "zone_200_gate_c",
+        "zone_name": "200 Level – Gate C Concourse",
+        "capacity": 18000,
         "scenario_type": "spike",
         "metadata": {
-            "zone_id": "zone_north_gate3",
-            "zone_name": "North Concourse Gate 3",
-            "connected_gates": ["gate_3", "gate_4"],
-            "accessible_routes": ["ramp_north_1", "elevator_north"],
+            "zone_id": "zone_200_gate_c",
+            "zone_name": "200 Level – Gate C Concourse",
+            "connected_gates": ["gate_c", "gate_d"],
+            "accessible_routes": ["ramp_200_north", "elevator_200_c"],
         },
     },
     {
-        # This zone starts at ~70% capacity on tick 0 and escalates to
-        # "critical" (>90% capacity) within 8-12 ticks.
-        "zone_id": "zone_south_main",
-        "zone_name": "South Main Concourse",
-        "capacity": 800,
+        # 300 Level upper-deck concourse — fast-escalating zone.
+        # Starts at ~70% capacity on tick 0 and reaches "critical" within 8–12
+        # ticks, making congestion escalation visible quickly in the demo.
+        "zone_id": "zone_300_gate_f",
+        "zone_name": "300 Level – Gate F Concourse",
+        "capacity": 18000,
         "scenario_type": "escalating",   # special fast-escalation curve
         "metadata": {
-            "zone_id": "zone_south_main",
-            "zone_name": "South Main Concourse",
-            "connected_gates": ["gate_1", "gate_2"],
-            "accessible_routes": ["ramp_south_1", "elevator_south"],
+            "zone_id": "zone_300_gate_f",
+            "zone_name": "300 Level – Gate F Concourse",
+            "connected_gates": ["gate_f", "gate_g"],
+            "accessible_routes": ["ramp_300_west", "elevator_300_f"],
         },
     },
     {
-        "zone_id": "zone_west_standing",
-        "zone_name": "West Standing Area",
-        "capacity": 600,
+        # Field-level concourse — lower capacity standing/VIP circulation area
+        "zone_id": "zone_field_gate_b",
+        "zone_name": "Field Level – Gate B Concourse",
+        "capacity": 18500,
         "scenario_type": "normal",
         "metadata": {
-            "zone_id": "zone_west_standing",
-            "zone_name": "West Standing Area",
-            "connected_gates": ["gate_7"],
-            "accessible_routes": ["ramp_west_1"],
+            "zone_id": "zone_field_gate_b",
+            "zone_name": "Field Level – Gate B Concourse",
+            "connected_gates": ["gate_b"],
+            "accessible_routes": ["ramp_field_south"],
         },
     },
 ]
+
 
 
 # ---------------------------------------------------------------------------
