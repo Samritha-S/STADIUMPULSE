@@ -48,7 +48,7 @@ This is the key difference from a stateless model: rather than regenerating a fr
 For any zone in `watch` or `critical` status, the system calls two Gemini-powered functions:
 
 - `generate_brief(zone_state)` → produces a `ControlRoomBrief` for operators: a plain-language situation summary, a severity classification (`low`/`medium`/`high`/`critical`), a concrete recommended action naming specific gates and routes, and the list of languages the PA announcement will need.
-- `generate_nudge(zone_state, fan_profile)` → produces a `FanNudge`: a 1–2 sentence message in the fan's language, directing them toward a specific less-congested route, with step-free routing enforced when `mobility_needs` is true.
+- `generate_nudge(zone_state, fan_profile)` → produces a `FanNudge`: a 1–2 sentence message in the fan's language, directing them toward a specific less-congested route, with step-free routing enforced when `mobility_needs` is true. Also includes a `transit_tip` field: a short (≤20 word) secondary suggestion covering transportation or sustainability — a light eco-transit nudge for normal-status zones, and a practical congestion-avoidance transit tip (framed in the fan's self-interest as being faster) for watch/critical zones.
 
 Both functions use Gemini's structured JSON output mode (`response_mime_type="application/json"` with a `response_schema`), so the model is constrained to produce schema-valid output at generation time rather than in free text.
 
@@ -161,7 +161,7 @@ Quick reference:
 pip install fastapi uvicorn python-dotenv google-generativeai
 cp .env.example .env   # then add GEMINI_API_KEY
 uvicorn backend.server:app --reload --port 8088
-python -m unittest discover -s tests -v   # 44 tests, all mocked
+python -m unittest discover -s tests -v   # 53 tests, all mocked
 ```
 
 ---

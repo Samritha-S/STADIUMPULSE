@@ -130,12 +130,20 @@ function renderNudge(nudge, urgency) {
       ${isMobility ? `
         <span class="accessibility-pill">✓ Accessible Egress (Step-free)</span>
       ` : ''}
+
+      ${nudge.transit_tip ? `
+        <div class="transit-tip" role="note" aria-label="Transportation tip">
+          <span class="transit-tip-icon" aria-hidden="true">🌿</span>
+          <span class="transit-tip-text">${escapeHtml(nudge.transit_tip)}</span>
+        </div>
+      ` : ''}
     </article>
   `;
 
   // Update the SVG wayfinding map whenever the nudge card updates
   renderMap(nudge.suggested_route, urgency, isMobility, isChanged);
 }
+
 
 // Helper: Escape HTML strings to prevent XSS
 function escapeHtml(str) {

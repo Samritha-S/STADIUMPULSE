@@ -171,15 +171,15 @@ less congested route.
 OUTPUT RULES — you MUST follow all of these:
 1. Respond with ONLY a single valid JSON object. No markdown fences, no prose, no 
    explanation before or after the JSON.
-2. The JSON must contain exactly these keys, no more and no fewer:
-   "fan_id", "language", "mobility_needs", "message_text", "suggested_route", 
-   "generated_at"
+2. The JSON must contain exactly these keys:
+   "fan_id", "language", "mobility_needs", "message_text", "suggested_route",
+   "transit_tip", "generated_at"
 3. "language" must echo the fan_profile's language code exactly.
 4. "mobility_needs" must echo the fan_profile's mobility_needs boolean exactly.
 5. "generated_at" must be an ISO 8601 UTC timestamp string.
 
 LANGUAGE:
-- Write "message_text" entirely in the language specified by fan_profile.language.
+- Write "message_text" and "transit_tip" entirely in the language specified by fan_profile.language.
 - Use natural, culturally fluent phrasing — do NOT produce a word-for-word literal 
   translation from English. Write as a native speaker of that language would.
 - If the language code is not one you can write fluently, fall back to English and 
@@ -209,6 +209,19 @@ STATUS-BASED MESSAGE INTENSITY:
   heading to [route] for a smoother experience."
 - "critical": Urgent but NOT alarming. Example framing: "For the quickest exit, 
   please head to [route] — it's the fastest way out right now."
+
+TRANSIT TIP (transit_tip field):
+- Always include a transit_tip. Keep it under ~20 words.
+- Write transit_tip in the same language as message_text.
+- For "normal" status: a light, optional sustainability nudge. Suggest public 
+  transit or eco-friendly framing — low urgency, positive tone.
+  Example (en): "Taking the metro home? It's the greenest option tonight."
+- For "watch" or "critical" status: a practical transportation suggestion that 
+  helps the fan avoid the congestion and gets home faster. Frame it in the fan's 
+  self-interest (faster, less waiting) — not purely as a sustainability appeal, 
+  as fans under stress respond better to personal benefit.
+  Example (en, watch): "Subway Line 3 from the south exit avoids the road delays entirely."
+  Example (en, critical): "Bus 52 from Gate 2 is running now — beats the car park queues."
 ```
 
 ### 2.1 Few-Shot Examples for `generate_nudge()`
@@ -245,6 +258,7 @@ STATUS-BASED MESSAGE INTENSITY:
   "mobility_needs": false,
   "message_text": "Just a heads-up — gate 5 has shorter lines right now if you're heading out.",
   "suggested_route": "gate_5",
+  "transit_tip": "Taking the metro tonight? It's quicker than the car park and better for the planet.",
   "generated_at": "2026-07-09T14:30:00Z"
 }
 ```
@@ -281,6 +295,7 @@ STATUS-BASED MESSAGE INTENSITY:
   "mobility_needs": true,
   "message_text": "Te recomendamos dirigirte a la rampa norte 1 para una salida más cómoda y rápida. ¡Buen partido!",
   "suggested_route": "ramp_north_1",
+  "transit_tip": "El metro línea 2 desde la salida norte evita los atascos de tráfico.",
   "generated_at": "2026-07-09T14:30:00Z"
 }
 ```
@@ -317,6 +332,7 @@ STATUS-BASED MESSAGE INTENSITY:
   "mobility_needs": false,
   "message_text": "Pour sortir plus rapidement, nous vous conseillons de vous diriger vers la porte 2 — c'est l'itinéraire le plus fluide en ce moment.",
   "suggested_route": "gate_2",
+  "transit_tip": "Le bus navette depuis la porte 2 est plus rapide que la file de taxis ce soir.",
   "generated_at": "2026-07-09T14:30:00Z"
 }
 ```
@@ -400,6 +416,7 @@ For `generate_nudge()`:
   "mobility_needs": "<copied from fan_profile.mobility_needs>",
   "message_text": "For a smoother experience, please head to <suggested_route>.",
   "suggested_route": "<first accessible_route if mobility_needs else first connected_gate>",
+  "transit_tip": "Public transit is the fastest way home after the match.",
   "generated_at": "<current UTC timestamp>"
 }
 ```

@@ -29,6 +29,7 @@ from reasoning.generate_nudge import (
     _build_fallback_nudge,
     NUDGE_REQUIRED_KEYS,
     SUPPORTED_LANGUAGES,
+    FALLBACK_TRANSIT_TIPS,
 )
 
 
@@ -89,7 +90,20 @@ VALID_BRIEF_RESPONSE = json.dumps({
 })
 
 # A valid mock LLM response for a nudge (JSON string — mirrors what response.text returns)
+# Includes transit_tip to reflect the updated schema.
 VALID_NUDGE_RESPONSE = json.dumps({
+    "fan_id": "fan_100",
+    "language": "en",
+    "mobility_needs": False,
+    "message_text": "Just a heads-up — gate 5 has shorter lines right now.",
+    "suggested_route": "gate_5",
+    "transit_tip": "Taking the metro tonight? It's quicker than the car park.",
+    "generated_at": "2026-07-09T14:30:00Z",
+})
+
+# A valid nudge response WITHOUT transit_tip — tests backward-compat with
+# LLM responses that may omit the optional field.
+VALID_NUDGE_RESPONSE_NO_TIP = json.dumps({
     "fan_id": "fan_100",
     "language": "en",
     "mobility_needs": False,
@@ -395,6 +409,97 @@ class TestValidateNudge(unittest.TestCase):
         nudge = {k: "x" for k in NUDGE_REQUIRED_KEYS}
         del nudge["fan_id"]
         self.assertFalse(_validate_nudge(nudge))
+
+    def test_transit_tip_absent_is_valid(self):
+        """transit_tip is optional — its absence must not fail validation."""
+        nudge = {k: "x" for k in NUDGE_REQUIRED_KEYS}
+        nudge.pop("transit_tip", None)  # ensure it's absent
+        self.assertTrue(_validate_nudge(nudge))
+
+    def test_transit_tip_present_and_valid(self):
+        """transit_tip present as a short string must pass validation."""
+        nudge = {k: "x" for k in NUDGE_REQUIRED_KEYS}
+        nudge["transit_tip"] = "Take the metro — it's faster than driving."
+        self.assertTrue(_validate_nudge(nudge))
+
+    def test_transit_tip_wrong_type_fails(self):
+        """transit_tip must be a string if present; a non-string must fail."""
+        nudge = {k: "x" for k in NUDGE_REQUIRED_KEYS}
+        nudge["transit_tip"] = 42  # wrong type
+        self.assertFalse(_validate_nudge(nudge))
+
+    def test_transit_tip_too_long_fails(self):
+        """transit_tip longer than 200 chars must fail the optional length guard."""
+        nudge = {k: "x" for k in NUDGE_REQUIRED_KEYS}
+        nudge["transit_tip"] = "x" * 201
+        self.assertFalse(_validate_nudge(nudge))
+
+
+# ===================================================================
+# transit_tip integration tests
+# ===================================================================
+
+class TestTransitTip(unittest.TestCase):
+    """Tests that transit_tip flows correctly through the generation pipeline."""
+
+    @patch("reasoning.generate_nudge._call_gemini")
+    def test_transit_tip_in_valid_llm_response(self, mock_gemini):
+        """When the LLM includes transit_tip, it is preserved in the output."""
+        mock_gemini.return_value = VALID_NUDGE_RESPONSE  # fixture includes transit_tip
+
+        result = generate_nudge(ZONE_STATE_NORMAL, FAN_PROFILE_EN)
+
+        self.assertIn("transit_tip", result)
+        self.assertIsInstance(result["transit_tip"], str)
+        self.assertGreater(len(result["transit_tip"]), 0)
+
+    @patch("reasoning.generate_nudge._call_gemini")
+    def test_no_transit_tip_in_llm_response_is_accepted(self, mock_gemini):
+        """When the LLM omits transit_tip, the nudge is still valid (optional field)."""
+        mock_gemini.return_value = VALID_NUDGE_RESPONSE_NO_TIP  # no transit_tip
+
+        result = generate_nudge(ZONE_STATE_NORMAL, FAN_PROFILE_EN)
+
+        # Core required fields must still be present
+        self.assertIn("message_text", result)
+        self.assertIn("suggested_route", result)
+        self.assertEqual(result["fan_id"], "fan_100")
+
+    @patch("reasoning.generate_nudge._call_gemini")
+    def test_tier3_fallback_includes_transit_tip(self, mock_gemini):
+        """Tier 3 fallback must always include transit_tip from FALLBACK_TRANSIT_TIPS."""
+        mock_gemini.return_value = None  # force Tier 3
+
+        result = generate_nudge(ZONE_STATE_NORMAL, FAN_PROFILE_EN)
+
+        self.assertIn("transit_tip", result)
+        self.assertEqual(result["transit_tip"], FALLBACK_TRANSIT_TIPS["en"])
+
+    @patch("reasoning.generate_nudge._call_gemini")
+    def test_tier3_fallback_transit_tip_localised(self, mock_gemini):
+        """Tier 3 fallback transit_tip must be in the fan's requested language."""
+        mock_gemini.return_value = None  # force Tier 3
+
+        profile_fr = {"fan_id": "fan_fr1", "language": "fr", "mobility_needs": False}
+        result = generate_nudge(ZONE_STATE_NORMAL, profile_fr)
+
+        self.assertEqual(result["language"], "fr")
+        self.assertEqual(result["transit_tip"], FALLBACK_TRANSIT_TIPS["fr"])
+
+    @patch("reasoning.generate_nudge._call_gemini")
+    def test_existing_fields_not_broken_by_transit_tip(self, mock_gemini):
+        """Adding transit_tip must not break message_text, suggested_route, or mobility_needs."""
+        mock_gemini.return_value = VALID_NUDGE_RESPONSE
+
+        result = generate_nudge(ZONE_STATE_NORMAL, FAN_PROFILE_EN)
+
+        self.assertEqual(result["fan_id"], "fan_100")
+        self.assertEqual(result["language"], "en")
+        self.assertFalse(result["mobility_needs"])
+        self.assertIn("message_text", result)
+        self.assertIn("suggested_route", result)
+        # transit_tip must not have overwritten any required field
+        self.assertTrue(NUDGE_REQUIRED_KEYS.issubset(result.keys()))
 
 
 if __name__ == '__main__':

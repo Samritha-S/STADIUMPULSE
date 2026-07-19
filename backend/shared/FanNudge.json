@@ -24,6 +24,10 @@
       "type": "string",
       "description": "Recommended route code or gate to use instead of the congested zone."
     },
+    "transit_tip": {
+      "type": "string",
+      "description": "Optional short transportation or sustainability tip (≤ ~20 words). For 'normal' status this is a light eco/transit nudge (e.g. recommending public transit). For 'watch'/'critical' status this is a practical congestion-avoidance transit suggestion framed as being faster for the fan. Written in the same language as message_text. May be absent if the LLM omits it."
+    },
     "generated_at": {
       "type": "string",
       "format": "date-time",

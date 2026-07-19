@@ -29,6 +29,7 @@ Example Output:
         "mobility_needs": true,
         "message_text": "Te recomendamos dirigirte a la rampa norte 1 ...",
         "suggested_route": "ramp_north_1",
+        "transit_tip": "El metro l\u00ednea 2 evita los atascos de tr\u00e1fico.",
         "generated_at": "2026-07-09T14:30:00Z"
     }
 """
@@ -65,6 +66,8 @@ NUDGE_REQUIRED_KEYS = {
 # ---------------------------------------------------------------------------
 # Response schema for Gemini JSON mode
 # Mirrors FanNudge.json exactly so Gemini enforces the shape at generation time.
+# transit_tip is included in properties but NOT in required[] — the model may
+# omit it and the caller will fall back to the hardcoded FALLBACK_TRANSIT_TIPS.
 # ---------------------------------------------------------------------------
 NUDGE_RESPONSE_SCHEMA = {
     "type": "object",
@@ -74,6 +77,7 @@ NUDGE_RESPONSE_SCHEMA = {
         "mobility_needs": {"type": "boolean"},
         "message_text":   {"type": "string"},
         "suggested_route":{"type": "string"},
+        "transit_tip":    {"type": "string"},
         "generated_at":   {"type": "string"},
     },
     "required": [
@@ -94,15 +98,15 @@ less congested route.
 OUTPUT RULES — you MUST follow all of these:
 1. Respond with ONLY a single valid JSON object. No markdown fences, no prose, no \
 explanation before or after the JSON.
-2. The JSON must contain exactly these keys, no more and no fewer:
+2. The JSON must contain exactly these keys:
    "fan_id", "language", "mobility_needs", "message_text", "suggested_route", \
-"generated_at"
+"transit_tip", "generated_at"
 3. "language" must echo the fan_profile's language code exactly.
 4. "mobility_needs" must echo the fan_profile's mobility_needs boolean exactly.
 5. "generated_at" must be an ISO 8601 UTC timestamp string.
 
 LANGUAGE:
-- Write "message_text" entirely in the language specified by fan_profile.language.
+- Write "message_text" and "transit_tip" entirely in the language specified by fan_profile.language.
 - Use natural, culturally fluent phrasing — do NOT produce a word-for-word literal \
 translation from English. Write as a native speaker of that language would.
 - If the language code is not one you can write fluently, fall back to English and \
@@ -131,11 +135,24 @@ framing: "Just a heads-up, [route] has shorter lines right now."
 - "watch": A clear but calm recommendation. Example framing: "We recommend \
 heading to [route] for a smoother experience."
 - "critical": Urgent but NOT alarming. Example framing: "For the quickest exit, \
-please head to [route] — it's the fastest way out right now.\""""
+please head to [route] — it's the fastest way out right now.\"
+
+TRANSIT TIP (transit_tip field):
+- Always include a transit_tip. Keep it under ~20 words.
+- Write transit_tip in the same language as message_text.
+- For "normal" status: a light, optional sustainability nudge. Suggest public \
+transit or eco-friendly framing — low urgency, positive tone.
+  Example (en): "Taking the metro home? It's the greenest option tonight."
+- For "watch" or "critical" status: a practical transportation suggestion that \
+helps the fan avoid congestion and get home faster. Frame it as being faster \
+for the fan (self-interest framing), not solely as a sustainability appeal.
+  Example (en, watch): "Subway Line 3 from the south exit avoids the road delays entirely."
+  Example (en, critical): "Bus 52 from Gate 2 is running now — beats the car park queues."""""
 
 # ---------------------------------------------------------------------------
 # Few-shot examples — reproduced verbatim from PROMPT_SPEC.md §2.1
 # Formatted as Gemini content turns (role: user / model).
+# All model turns now include transit_tip so the model learns to produce it.
 # ---------------------------------------------------------------------------
 FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
     # Example A — normal, English, no mobility needs
@@ -168,6 +185,7 @@ FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
             "mobility_needs": False,
             "message_text": "Just a heads-up \u2014 gate 5 has shorter lines right now if you\u2019re heading out.",
             "suggested_route": "gate_5",
+            "transit_tip": "Taking the metro tonight? It\u2019s quicker than the car park and better for the planet.",
             "generated_at": "2026-07-09T14:30:00Z",
         })}],
     },
@@ -201,6 +219,7 @@ FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
             "mobility_needs": True,
             "message_text": "Te recomendamos dirigirte a la rampa norte 1 para una salida m\u00e1s c\u00f3moda y r\u00e1pida. \u00a1Buen partido!",
             "suggested_route": "ramp_north_1",
+            "transit_tip": "El metro l\u00ednea 2 desde la salida norte evita los atascos de tr\u00e1fico.",
             "generated_at": "2026-07-09T14:30:00Z",
         })}],
     },
@@ -234,6 +253,7 @@ FEW_SHOT_EXAMPLES: List[Dict[str, Any]] = [
             "mobility_needs": False,
             "message_text": "Pour sortir plus rapidement, nous vous conseillons de vous diriger vers la porte 2 \u2014 c\u2019est l\u2019itin\u00e9raire le plus fluide en ce moment.",
             "suggested_route": "gate_2",
+            "transit_tip": "Le bus navette depuis la porte 2 est plus rapide que la file de taxis ce soir.",
             "generated_at": "2026-07-09T14:30:00Z",
         })}],
     },
@@ -324,13 +344,39 @@ def _extract_json(raw_text: str) -> Optional[dict]:
 
 
 def _validate_nudge(parsed: dict) -> bool:
-    """Check that parsed dict has all required keys for FanNudge."""
+    """Check that parsed dict has all required keys for FanNudge.
+
+    transit_tip is optional but, if present, must be a string under 200 chars.
+    All other required keys are checked by NUDGE_REQUIRED_KEYS.
+    """
     if not isinstance(parsed, dict):
         return False
     if not NUDGE_REQUIRED_KEYS.issubset(parsed.keys()):
         return False
+    # Optional field type/length guard
+    tip = parsed.get("transit_tip")
+    if tip is not None and (not isinstance(tip, str) or len(tip) > 200):
+        return False
     return True
 
+
+# ---------------------------------------------------------------------------
+# Fallback transit tips (Tier 3) — generic, per-language, status-agnostic.
+# These are intentionally short and practical so they add value even without
+# contextual zone data. Indexed by ISO 639-1 language code.
+# ---------------------------------------------------------------------------
+FALLBACK_TRANSIT_TIPS = {
+    "en": "Public transit is often the fastest way home after the match.",
+    "es": "El transporte p\u00fablico suele ser la opci\u00f3n m\u00e1s r\u00e1pida despu\u00e9s del partido.",
+    "fr": "Les transports en commun sont souvent plus rapides apr\u00e8s le match.",
+    "pt": "O transporte p\u00fablico \u00e9 geralmente a op\u00e7\u00e3o mais r\u00e1pida ap\u00f3s o jogo.",
+    "de": "\u00d6ffentliche Verkehrsmittel sind nach dem Spiel oft am schnellsten.",
+    "ar": "\u063a\u0627\u0644\u0628\u0627\u064b\u060c \u0627\u0644\u0646\u0642\u0644 \u0627\u0644\u0639\u0627\u0645 \u0647\u0648 \u0627\u0644\u062e\u064a\u0627\u0631 \u0627\u0644\u0623\u0633\u0631\u0639 \u0644\u0644\u0639\u0648\u062f\u0629 \u0628\u0639\u062f \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629.",
+    "it": "I mezzi pubblici sono spesso i pi\u00f9 veloci dopo la partita.",
+    "ja": "\u8a66\u5408\u5f8c\u306f\u516c\u5171\u4ea4\u901a\u6a5f\u95a2\u304c\u6700\u3082\u65e9\u304f\u5e30\u308c\u308b\u65b9\u6cd5\u3067\u3059\u3002",
+    "ko": "\uacbd\uae30 \ud6c4uc5d0\ub294 \ub300\uc911\uad50\ud1b5\uc774 \uac00\uc7a5 \ube60\ub978 \uadc0\uac00 \ubc29\ubc95\uc785\ub2c8\ub2e4.",
+    "zh": "\u6bd4\u8d5b\u540e\u4e58\u516c\u5171\u4ea4\u901a\u901a\u5e38\u662f\u6700\u5feb\u7684\u56de\u5bb6\u65b9\u5f0f\u3002"
+}
 
 FALLBACK_TEMPLATES = {
     "en": "For a smoother experience, please head to {route}.",
@@ -353,7 +399,8 @@ def _build_fallback_nudge(
     Tier 3 deterministic fallback — per PROMPT_SPEC.md §3.3.
 
     Constructs a safe, minimal FanNudge directly from the input data
-    without any LLM call, localized to the requested language.
+    without any LLM call, localised to the requested language.
+    Includes a hardcoded transit_tip in the same language.
     """
     mobility = fan_profile.get("mobility_needs", False)
     accessible = zone_state.get("accessible_routes", [])
@@ -369,10 +416,12 @@ def _build_fallback_nudge(
     if lang not in SUPPORTED_LANGUAGES:
         lang = "en"
 
-    # Use localized template if available
+    # Use localised template if available
     template = FALLBACK_TEMPLATES.get(lang, FALLBACK_TEMPLATES["en"])
     friendly_route = route.replace('_', ' ')
     message_text = template.format(route=friendly_route)
+
+    transit_tip = FALLBACK_TRANSIT_TIPS.get(lang, FALLBACK_TRANSIT_TIPS["en"])
 
     return {
         "fan_id": fan_profile.get("fan_id", "unknown_fan"),
@@ -380,6 +429,7 @@ def _build_fallback_nudge(
         "mobility_needs": mobility,
         "message_text": message_text,
         "suggested_route": route,
+        "transit_tip": transit_tip,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
