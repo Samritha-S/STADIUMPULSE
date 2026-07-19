@@ -5,78 +5,120 @@
 // Mock Data matching the schemas exactly
 const MOCK_ZONES = [
   {
-    zone_id: "zone_east_concourse",
-    zone_name: "East Concourse",
-    current_count: 180,
-    capacity: 800,
-    forecast_count_15min: 195,
-    forecast_count_30min: 210,
+    zone_id: "zone_100_gate_a",
+    zone_name: "100 Level – Gate A Concourse",
+    current_count: 7717,
+    capacity: 19500,
+    forecast_count_15min: 7486,
+    forecast_count_30min: 7255,
     status: "normal",
-    connected_gates: ["gate_5", "gate_6"],
-    accessible_routes: ["ramp_east_1", "elevator_east"]
+    connected_gates: ["gate_a", "gate_b"],
+    accessible_routes: ["ramp_100_east", "elevator_100_a"]
   },
   {
-    zone_id: "zone_north_gate3",
-    zone_name: "North Concourse Gate 3",
-    current_count: 580,
-    capacity: 800,
-    forecast_count_15min: 640,
-    forecast_count_30min: 710,
-    status: "watch",
-    connected_gates: ["gate_3", "gate_4"],
-    accessible_routes: ["ramp_north_1", "elevator_north"]
-  },
-  {
-    zone_id: "zone_south_main",
-    zone_name: "South Main Concourse",
-    current_count: 740,
-    capacity: 800,
-    forecast_count_15min: 830,
-    forecast_count_30min: 900,
+    zone_id: "zone_200_gate_c",
+    zone_name: "200 Level – Gate C Concourse",
+    current_count: 14266,
+    capacity: 18000,
+    forecast_count_15min: 16342,
+    forecast_count_30min: 17093,
     status: "critical",
-    connected_gates: ["gate_1", "gate_2"],
-    accessible_routes: ["ramp_south_1", "elevator_south"]
+    connected_gates: ["gate_c", "gate_d"],
+    accessible_routes: ["ramp_200_north", "elevator_200_c"]
   },
   {
-    zone_id: "zone_west_standing",
-    zone_name: "West Standing Area",
-    current_count: 320,
-    capacity: 600,
-    forecast_count_15min: 330,
-    forecast_count_30min: 340,
+    zone_id: "zone_200_gate_e",
+    zone_name: "200 Level – Gate E Concourse",
+    current_count: 14041,
+    capacity: 18000,
+    forecast_count_15min: 14053,
+    forecast_count_30min: 14065,
+    status: "watch",
+    connected_gates: ["gate_e"],
+    accessible_routes: ["ramp_200_east", "elevator_200_e"]
+  },
+  {
+    zone_id: "zone_300_gate_f",
+    zone_name: "300 Level – Gate F Concourse",
+    current_count: 17091,
+    capacity: 18000,
+    forecast_count_15min: 17088,
+    forecast_count_30min: 17085,
+    status: "critical",
+    connected_gates: ["gate_f", "gate_g"],
+    accessible_routes: ["ramp_300_west", "elevator_300_f"]
+  },
+  {
+    zone_id: "zone_300_gate_h",
+    zone_name: "300 Level – Gate H Concourse",
+    current_count: 16234,
+    capacity: 17500,
+    forecast_count_15min: 16311,
+    forecast_count_30min: 16356,
+    status: "critical",
+    connected_gates: ["gate_h"],
+    accessible_routes: ["ramp_300_north", "elevator_300_h"]
+  },
+  {
+    zone_id: "zone_field_gate_b",
+    zone_name: "Field Level – Gate B Concourse",
+    current_count: 7480,
+    capacity: 18500,
+    forecast_count_15min: 7428,
+    forecast_count_30min: 7377,
     status: "normal",
-    connected_gates: ["gate_7"],
-    accessible_routes: ["ramp_west_1"]
+    connected_gates: ["gate_b"],
+    accessible_routes: ["ramp_field_south"]
+  },
+  {
+    zone_id: "zone_field_gate_d",
+    zone_name: "Field Level – Gate D Concourse",
+    current_count: 4847,
+    capacity: 12000,
+    forecast_count_15min: 5178,
+    forecast_count_30min: 5510,
+    status: "normal",
+    connected_gates: ["gate_d"],
+    accessible_routes: ["ramp_field_east", "elevator_field_d"]
   }
 ];
 
 const MOCK_BRIEFS = [
   {
-    zone_id: "zone_south_main",
+    zone_id: "zone_300_gate_f",
     severity: "critical",
-    summary_text: "South Main Concourse is at 92% capacity (740/800). Forecast projects 830 in 15 min, exceeding capacity by 30 persons.",
-    recommended_action: "Deploy crowd management staff to gate 1 and gate 2 immediately. Activate hard PA reroute announcement directing fans to ramp_south_1.",
-    suggested_reroute_zone: "ramp_south_1",
-    languages_needed: ["en", "es", "fr", "ar", "pt"],
+    summary_text: "300 Level - Gate F Concourse is at 17103/18000 capacity. Automated summary unavailable.",
+    recommended_action: "Manual assessment recommended. LLM summary generation failed.",
+    suggested_reroute_zone: "ramp_300_west",
+    languages_needed: ["en"],
     generated_at: new Date().toISOString()
   },
   {
-    zone_id: "zone_north_gate3",
-    severity: "medium",
-    summary_text: "North Concourse Gate 3 is at 72% capacity (580/800) and rising. Forecast projects 710 in 30 min.",
-    recommended_action: "Increase monitoring at gate 3 and gate 4. Consider a soft PA announcement advising fans that ramp_north_1 offers shorter wait times.",
-    suggested_reroute_zone: "ramp_north_1",
-    languages_needed: ["en", "es", "fr"],
-    generated_at: new Date(Date.now() - 300000).toISOString()
+    zone_id: "zone_300_gate_h",
+    severity: "critical",
+    summary_text: "300 Level - Gate H Concourse is at 16234/17500 capacity. Automated summary unavailable.",
+    recommended_action: "Manual assessment recommended. LLM summary generation failed.",
+    suggested_reroute_zone: "ramp_300_north",
+    languages_needed: ["en"],
+    generated_at: new Date().toISOString()
   },
   {
-    zone_id: "zone_east_concourse",
-    severity: "low",
-    summary_text: "East Concourse is operating within safe parameters (22% capacity). Forecast remains stable.",
-    recommended_action: "No action required. Continue routine monitoring.",
-    suggested_reroute_zone: "none",
-    languages_needed: ["en", "es"],
-    generated_at: new Date(Date.now() - 900000).toISOString()
+    zone_id: "zone_200_gate_c",
+    severity: "critical",
+    summary_text: "200 Level - Gate C Concourse is at 16342/18000 capacity. Automated summary unavailable.",
+    recommended_action: "Manual assessment recommended. LLM summary generation failed.",
+    suggested_reroute_zone: "ramp_200_north",
+    languages_needed: ["en"],
+    generated_at: new Date().toISOString()
+  },
+  {
+    zone_id: "zone_200_gate_e",
+    severity: "medium",
+    summary_text: "200 Level - Gate E Concourse is at 14046/18000 capacity. Automated summary unavailable.",
+    recommended_action: "Manual assessment recommended. LLM summary generation failed.",
+    suggested_reroute_zone: "ramp_200_east",
+    languages_needed: ["en"],
+    generated_at: new Date().toISOString()
   }
 ];
 
