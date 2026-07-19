@@ -3,63 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StadiumPulse — Control Room Dashboard</title>
-  <meta name="description" content="StadiumPulse real-time crowd safety dashboard for FIFA World Cup 2026 stadium operations.">
-  <!-- Fonts: Space Grotesk · Inter · JetBrains Mono -->
+  <title>StadiumPulse | Control Room</title>
+  
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- sub-header: LIVE badge | venue | clock | refresh -->
   <section class="dashboard-sub-header" aria-label="Control Room Live Status">
     <div class="sub-header-left">
-      <span class="badge badge-live" id="live-indicator" aria-live="polite" aria-label="Live polling status">● LIVE</span>
-      <span class="venue-subtitle">MetLife Stadium — FIFA World Cup 2026 Final, July 19</span>
+      <div id="live-indicator" class="live-badge" aria-live="polite">● LIVE</div>
+      <span class="venue-text">MetLife Stadium Operations — FIFA World Cup 2026</span>
     </div>
     <div class="sub-header-right">
-      <time class="system-time" id="clock" aria-label="Current UTC time">2026-07-18 00:00:00 UTC</time>
-      <button class="btn btn-primary btn-refresh" id="refresh-btn" aria-label="Refresh dashboard data">
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M21 8h-5V3" />
+      <span id="clock" class="clock-display" aria-live="off">--:--:--</span>
+      <button id="refresh-btn" class="refresh-btn" aria-label="Refresh Dashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.5l5.82 5.82"></path>
         </svg>
-        Refresh
       </button>
     </div>
   </section>
 
+  <!-- critical alert rail -->
+  <div id="critical-alert-rail" aria-live="polite" aria-label="Critical zone alerts" style="display:none;"></div>
+
   <main class="dashboard-layout">
-    <!-- Quick System Status summary bar -->
-    <section class="dashboard-stat-strip" aria-label="System Metrics Summary">
-      <div class="stat-pill"><span class="stat-pill-dot bg-maroon"></span> <span id="stat-zones-count">...</span> Zones Monitored</div>
-      <div class="stat-pill"><span class="stat-pill-dot bg-green"></span> 10 Languages Supported</div>
-      <div class="stat-pill"><span class="stat-pill-dot bg-amber"></span> <span id="stat-alerts-count">...</span> Alerts & Reports Active</div>
-    </section>
-
-    <!-- Zone Monitoring Panel -->
-    <section class="panel-section zone-monitoring" aria-labelledby="zone-section-title">
-      <header class="panel-header">
-        <h2 id="zone-section-title">Stadium Zone Monitoring</h2>
-        <p class="section-description">Real-time crowd flow status and capacity tracking</p>
-      </header>
-      <!-- Zone cards rendered by app.js into this grid container.
-           Each card gets data-zone-id and data-status attributes for CSS stripe targeting. -->
-      <div class="zone-grid" id="zone-grid-container" aria-live="polite" aria-label="Zone status cards">
-        <div class="loading-state">Loading zone status…</div>
+    <!-- stat strip -->
+    <section class="dashboard-stat-strip" aria-label="Dashboard Statistics">
+      <div class="stat-pill">
+        <span class="stat-label">ACTIVE ZONES</span>
+        <span id="stat-zones-count" class="stat-value">--</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-label">ACTIVE ALERTS</span>
+        <span id="stat-alerts-count" class="stat-value">--</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-label">Sustainability</span>
+        <span class="eco-badge">🌿 ECO ROUTING ON</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-label">Languages</span>
+        <span class="stat-value" style="font-size:1rem;">10</span>
       </div>
     </section>
 
-    <!-- Operational Brief Feed (log ticker strip) -->
-    <section class="panel-section brief-feed" aria-labelledby="brief-section-title">
-      <header class="panel-header">
-        <h2 id="brief-section-title">GenAI Operational Briefs</h2>
-        <p class="section-description">Automated response briefings and routing recommendations</p>
-      </header>
-      <!-- aria-live="polite" announces new briefs to screen readers on each poll cycle -->
-      <div class="feed-container" id="brief-feed-container" aria-live="polite" aria-label="Operational briefings feed">
-        <div class="loading-state">Loading briefings…</div>
-      </div>
-    </section>
+    <div class="dashboard-grid">
+      <!-- zone monitoring -->
+      <section class="panel-section zone-monitoring" aria-labelledby="zone-section-title">
+        <header class="panel-header">
+          <h2 id="zone-section-title">Stadium Zone Monitoring</h2>
+          <p class="section-description">Real-time crowd flow status and capacity tracking</p>
+        </header>
+        <div class="zone-grid" id="zone-grid-container" aria-live="polite" aria-label="Zone status cards">
+          <div class="loading-state">Loading zone status…</div>
+        </div>
+      </section>
+
+      <!-- brief feed -->
+      <section class="panel-section brief-feed" aria-labelledby="brief-section-title">
+        <header class="panel-header">
+          <h2 id="brief-section-title">GenAI Operational Briefs</h2>
+          <p class="section-description">Automated response briefings and routing recommendations</p>
+        </header>
+        <div class="feed-container" id="brief-feed-container" aria-live="polite" aria-label="Operational briefings feed">
+          <div class="loading-state">Loading briefings…</div>
+        </div>
+      </section>
+
+      <!-- transit alert management console -->
+      <section class="panel-section transit-console" aria-labelledby="transit-console-title">
+        <header class="panel-header">
+          <h2 id="transit-console-title">🌿 Transit & Sustainability Dispatch</h2>
+          <p class="section-description">Broadcast sustainability advisories and real-time transit alerts to fans</p>
+        </header>
+        <form id="transit-alert-form" class="transit-form-layout" novalidate>
+          <div class="form-group-inline">
+            <label for="transit-status-select" class="form-label">Transit System Status</label>
+            <select id="transit-status-select" aria-label="Select transit status">
+              <option value="normal">Normal — Eco transit nudges active</option>
+              <option value="watch">Watch — High demand warning</option>
+              <option value="critical">Critical — Delays & capacity warnings</option>
+            </select>
+          </div>
+          <div class="form-group-inline" style="margin-top: 1rem;">
+            <label for="transit-custom-tip" class="form-label">Custom Transit Advisory (Fan-Facing)</label>
+            <textarea id="transit-custom-tip" rows="3" placeholder="e.g. NJ Transit rail lines are heavily congested. Take the direct express shuttle from Gate A for a 100% eco-friendly, faster route." required></textarea>
+          </div>
+          <div class="form-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary" style="background: var(--maroon); border: none; padding: 0.6rem 1rem; font-weight: 700; color: #fff; cursor: pointer; border-radius: 4px;">Publish Broadcast</button>
+            <button type="button" id="clear-transit-btn" class="btn btn-secondary" style="background: var(--surface-raised); border: 1px solid var(--border); padding: 0.6rem 1rem; font-weight: 700; color: var(--ink-muted); cursor: pointer; border-radius: 4px;">Clear Override</button>
+          </div>
+          <div id="transit-console-feedback" aria-live="polite" style="margin-top: 0.75rem; font-size: 0.78rem; font-weight: 600;"></div>
+        </form>
+      </section>
+    </div>
   </main>
 
   <script src="app.js"></script>

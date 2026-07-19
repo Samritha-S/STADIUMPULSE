@@ -39,7 +39,7 @@ REPORT_RESPONSE_SCHEMA = {
     "type": "object",
     "properties": {
         "detected_language":  {"type": "string"},
-        "zone_id":            {"type": ["string", "null"]},
+        "zone_id":            {"type": "string"},
         "category":           {"type": "string", "enum": list(VALID_CATEGORIES)},
         "severity":           {"type": "string", "enum": list(VALID_SEVERITIES)},
         "structured_summary": {"type": "string"},

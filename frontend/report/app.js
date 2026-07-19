@@ -1,7 +1,5 @@
-// Volunteer Desk App Logic
+// Report Desk App Logic
 document.addEventListener("DOMContentLoaded", () => {
-  // (device-time clock removed — was part of the old phone status bar chrome)
-
   const form = document.getElementById("incident-form");
   const textarea = document.getElementById("raw_text");
   const charCounter = document.getElementById("char-counter");
@@ -125,14 +123,5 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       tagZone.style.display = "none";
     }
-  }
-
-  function updateClock() {
-    const deviceTime = document.getElementById("device-time");
-    if (!deviceTime) return;
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    deviceTime.textContent = `${hours}:${minutes}`;
   }
 });

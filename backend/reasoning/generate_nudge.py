@@ -368,16 +368,16 @@ def _validate_nudge(parsed: dict) -> bool:
 # contextual zone data. Indexed by ISO 639-1 language code.
 # ---------------------------------------------------------------------------
 FALLBACK_TRANSIT_TIPS = {
-    "en": "Public transit is often the fastest way home after the match.",
-    "es": "El transporte p\u00fablico suele ser la opci\u00f3n m\u00e1s r\u00e1pida despu\u00e9s del partido.",
-    "fr": "Les transports en commun sont souvent plus rapides apr\u00e8s le match.",
-    "pt": "O transporte p\u00fablico \u00e9 geralmente a op\u00e7\u00e3o mais r\u00e1pida ap\u00f3s o jogo.",
-    "de": "\u00d6ffentliche Verkehrsmittel sind nach dem Spiel oft am schnellsten.",
-    "ar": "\u063a\u0627\u0644\u0628\u0627\u064b\u060c \u0627\u0644\u0646\u0642\u0644 \u0627\u0644\u0639\u0627\u0645 \u0647\u0648 \u0627\u0644\u062e\u064a\u0627\u0631 \u0627\u0644\u0623\u0633\u0631\u0639 \u0644\u0644\u0639\u0648\u062f\u0629 \u0628\u0639\u062f \u0627\u0644\u0645\u0628\u0627\u0631\u0627\u0629.",
-    "it": "I mezzi pubblici sono spesso i pi\u00f9 veloci dopo la partita.",
-    "ja": "\u8a66\u5408\u5f8c\u306f\u516c\u5171\u4ea4\u901a\u6a5f\u95a2\u304c\u6700\u3082\u65e9\u304f\u5e30\u308c\u308b\u65b9\u6cd5\u3067\u3059\u3002",
-    "ko": "\uacbd\uae30 \ud6c4uc5d0\ub294 \ub300\uc911\uad50\ud1b5\uc774 \uac00\uc7a5 \ube60\ub978 \uadc0\uac00 \ubc29\ubc95\uc785\ub2c8\ub2e4.",
-    "zh": "\u6bd4\u8d5b\u540e\u4e58\u516c\u5171\u4ea4\u901a\u901a\u5e38\u662f\u6700\u5feb\u7684\u56de\u5bb6\u65b9\u5f0f\u3002"
+    "en": "🌿 Take NJ Transit rail from the stadium — 83% lower carbon than driving solo. Electric shuttles depart Gates A & C every 8 minutes.",
+    "es": "🌿 Tome el tren NJ Transit desde el estadio — 83% menos carbono que manejar solo. Lanzaderas eléctricas salen de las Puertas A y C cada 8 minutos.",
+    "fr": "🌿 Prenez le train NJ Transit depuis le stade — 83 % moins d'émissions que la voiture solo. Navettes électriques au départ des Portes A et C toutes les 8 minutes.",
+    "pt": "🌿 Tome o trem NJ Transit a partir do estádio — 83% menos carbono do que dirigir sozinho. Ônibus elétricos partem das Portões A e C a cada 8 minutos.",
+    "de": "🌿 Nehmen Sie die NJ Transit Bahn ab dem Stadion — 83 % weniger CO₂ als Autofahren allein. Elektro-Shuttles fahren alle 8 Minuten von den Toren A und C.",
+    "ar": "🌿 خذ قطار NJ Transit من الملعب — أقل بنسبة 83٪ من الكربون مقارنةً بالقيادة منفرداً. تتوفر حافلات كهربائية من البوابتين A و C كل 8 دقائق.",
+    "it": "🌿 Prendi il treno NJ Transit dallo stadio — l'83% in meno di emissioni rispetto all'auto privata. Navette elettriche dai Cancelli A e C ogni 8 minuti.",
+    "ja": "🌿 NJ Transitの電車でスタジアムから移動 — 車での一人移動より炭素排出量が83%少ない。電動シャトルはゲートAとCから8分ごとに出発します。",
+    "ko": "🌿 경기장에서 NJ Transit 열차를 이용하세요 — 혼자 운전할 때보다 탄소 배출량이 83% 적습니다. 전기 셔틀은 A, C 게이트에서 8분마다 출발합니다.",
+    "zh": "🌿 乘坐NJ Transit火车离开体育场——比独自驾车减少83%碳排放。电动接驳车每8分钟从A门和C门发车。"
 }
 
 FALLBACK_TEMPLATES = {

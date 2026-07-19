@@ -3,192 +3,343 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StadiumPulse — Fan Companion View</title>
-  <meta name="description" content="StadiumPulse personalised crowd routing for FIFA World Cup 2026 fans.">
-  <!-- Fonts: Space Grotesk · Inter · JetBrains Mono -->
+  <title>StadiumPulse — Fan Companion</title>
+  <meta name="description" content="Your personal crowd-routing companion for the FIFA World Cup 2026 Final at MetLife Stadium.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="mobile-body">
+<body class="fan-body">
 
-  <div class="fan-app-layout">
-    <!-- Desktop Left Sidebar -->
-    <aside class="fan-sidebar" aria-label="Sidebar Navigation">
-      <div class="sidebar-branding">
-        <span class="view-tag">Fan Companion</span>
+  <!-- ── TOP APP BAR ─────────────────────────────────────────────────── -->
+  <header class="app-bar" role="banner">
+    <div class="app-bar-left">
+      <span class="app-logo">StadiumPulse</span>
+      <div class="app-bar-live">
+        <span class="live-dot" id="fan-live-dot" aria-hidden="true"></span>
+        <span class="live-label" id="fan-live-label">CONNECTING</span>
       </div>
-      <nav class="sidebar-nav" role="tablist" aria-label="Desktop Navigation">
-        <button class="nav-item active" data-tab="updates" role="tab" aria-selected="true" aria-controls="tab-panel-updates">
-          <span class="nav-icon" aria-hidden="true">📢</span>
-          <span class="nav-text">Live Updates</span>
-        </button>
-        <button class="nav-item" data-tab="route" role="tab" aria-selected="false" aria-controls="tab-panel-route">
-          <span class="nav-icon" aria-hidden="true">🗺️</span>
-          <span class="nav-text">Route Map</span>
-        </button>
-        <button class="nav-item" data-tab="transit" role="tab" aria-selected="false" aria-controls="tab-panel-transit">
-          <span class="nav-icon" aria-hidden="true">🌿</span>
-          <span class="nav-text">Transit & Eco</span>
-        </button>
-        <button class="nav-item" data-tab="report" role="tab" aria-selected="false" aria-controls="tab-panel-report">
-          <span class="nav-icon" aria-hidden="true">⚠️</span>
-          <span class="nav-text">Report Issue</span>
-        </button>
-        <button class="nav-item" data-tab="info" role="tab" aria-selected="false" aria-controls="tab-panel-info">
-          <span class="nav-icon" aria-hidden="true">ℹ️</span>
-          <span class="nav-text">Venue Info</span>
-        </button>
-      </nav>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="fan-main-content">
-      <!-- Mobile Top Header (shows section label below session nav on mobile) -->
-      <header class="mobile-header">
-        <span class="view-tag">Fan Companion</span>
-      </header>
-
-      <!-- Tab Content Panels -->
-      <div class="fan-content-area">
-
-        <!-- TAB: Updates -->
-        <div id="tab-panel-updates" class="tab-panel" role="tabpanel">
-          <section class="panel-card nudge-section" aria-labelledby="notification-title">
-            <h3 id="notification-title" class="panel-title">Safety & Crowd Guidance</h3>
-            <div class="nudge-box-wrapper" id="nudge-display-wrapper" aria-live="polite">
-              <div class="nudge-loading">Receiving route updates…</div>
-            </div>
-          </section>
-        </div>
-
-        <!-- TAB: Route Map -->
-        <div id="tab-panel-route" class="tab-panel" role="tabpanel" style="display:none;">
-          <section class="panel-card map-placeholder" aria-label="Interactive Stadium Map">
-            <h3 class="panel-title">Your Custom Wayfinding Route</h3>
-            <div class="map-grid" id="map-grid-container">
-              <!-- Dynamically populated SVG will be injected here -->
-            </div>
-            <p class="map-caption" id="map-caption-text">Awaiting route update…</p>
-          </section>
-        </div>
-
-        <!-- TAB: Transit & Sustainability -->
-        <div id="tab-panel-transit" class="tab-panel" role="tabpanel" style="display:none;">
-          <section class="panel-card transit-section" aria-label="Route and Transit Information">
-            <h3 class="panel-title">Transit & Sustainability Guidance</h3>
-            <div id="transit-display-wrapper">
-              <!-- Dynamically generated card will be injected here by app.js -->
-              <p class="transit-card-text" style="color: var(--ink-muted); text-align: center; padding: 2rem;">No active transit advisories for your current profile.</p>
-            </div>
-          </section>
-        </div>
-
-        <!-- TAB: Report an Issue -->
-        <div id="tab-panel-report" class="tab-panel" role="tabpanel" style="display:none;">
-          <section class="panel-card report-info-panel" aria-label="Report an Issue">
-            <h3 class="panel-title">Report an Issue</h3>
-            <div class="report-box">
-              <span class="report-icon" aria-hidden="true">⚠️</span>
-              <h4>Control Room Dispatch</h4>
-              <p class="report-body">Are you noticing a medical emergency, security issue, facility hazard, or crowd congestion? Field volunteers are standing by to triage your report directly to stadium operators.</p>
-              <a href="/volunteer" class="btn btn-primary" style="margin-top: 1rem; width: auto; display: inline-flex;">Go to Volunteer Portal ↗</a>
-              <p class="report-note">Your report will be automatically translated and categorized by our AI triage pipeline.</p>
-            </div>
-          </section>
-        </div>
-
-        <!-- TAB: Venue & Ticket Info -->
-        <div id="tab-panel-info" class="tab-panel" role="tabpanel" style="display:none;">
-          <section class="panel-card tickets-info-panel" aria-label="Venue Information">
-            <h3 class="panel-title">Match & Venue Details</h3>
-            <div class="info-box">
-              <div class="tickets-icon" aria-hidden="true">🏟️</div>
-              <h4 class="tickets-title">MetLife Stadium</h4>
-              <p class="tickets-body">Host of the FIFA World Cup 2026 Final on July 19, 2026. Capacity: 78,576.</p>
-              <p class="tickets-body" style="margin-top: 0.5rem;">Match tickets are managed exclusively through the official FIFA ticketing platform.</p>
-              <a href="https://www.fifa.com/tickets" target="_blank" rel="noopener noreferrer" class="tickets-link" style="margin: 1rem 0;">fifa.com/tickets ↗</a>
-              <p class="tickets-note">StadiumPulse handles crowd routing and safety guidance — ticket management is out of scope for this demo.</p>
-            </div>
-          </section>
-        </div>
-
-      </div>
-    </main>
-
-    <!-- Demo Controller Panel -->
-    <aside class="demo-controls-panel" aria-label="Hackathon Demo Controller">
-      <h4>Demo Controller</h4>
-      <p>Select a fan profile — the companion view polls live every 3 seconds using the active profile.</p>
-
-      <div class="profile-selector">
-        <label for="lang-select">Language (10 Supported)</label>
-        <select id="lang-select" aria-label="Select language for nudge">
-          <option value="en" selected>English (EN)</option>
-          <option value="es">Spanish (ES)</option>
-          <option value="fr">French (FR)</option>
-          <option value="pt">Portuguese (PT)</option>
-          <option value="de">German (DE)</option>
-          <option value="ar">Arabic (AR)</option>
-          <option value="it">Italian (IT)</option>
-          <option value="ja">Japanese (JA)</option>
-          <option value="ko">Korean (KO)</option>
-          <option value="zh">Chinese (ZH)</option>
-        </select>
-        <div style="font-size: 0.65rem; color: var(--ink-muted); margin-top: 0.25rem; font-weight: 500;">
-          ✨ <span style="color: var(--accent-soft);">Live Generative translation active</span>
-        </div>
-      </div>
-
-      <div class="profile-selector">
-        <label for="mobility-select">Mobility needs</label>
-        <select id="mobility-select" aria-label="Select mobility needs">
-          <option value="false" selected>No accessibility requirements</option>
-          <option value="true">Step-free / accessible route</option>
-        </select>
-      </div>
-
-      <button class="btn btn-secondary" id="next-nudge-btn" aria-label="Cycle to next demo scenario">
-        Next Scenario Example
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+    </div>
+    <div class="app-bar-center">
+      <span class="venue-chip">🏟 MetLife Stadium · FIFA World Cup 2026 Final</span>
+    </div>
+    <div class="app-bar-right">
+      <button class="settings-trigger" id="settings-trigger-btn" aria-label="Open demo settings" aria-expanded="false" aria-controls="settings-drawer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
       </button>
+    </div>
+  </header>
 
-      <div class="demo-scenario-info" id="scenario-info-text" aria-live="polite">
-        Scenario: Normal Exit Update (EN)
+  <!-- ── SETTINGS DRAWER (demo controls, hidden by default) ──────────── -->
+  <aside id="settings-drawer" class="settings-drawer" aria-label="Demo Settings" hidden>
+    <div class="settings-drawer-header">
+      <span class="settings-drawer-title">Fan Profile &amp; Demo Controls</span>
+      <button class="settings-close-btn" id="settings-close-btn" aria-label="Close settings">✕</button>
+    </div>
+    <p class="settings-drawer-desc">Simulate different fan profiles to preview personalised routing in each language and accessibility mode.</p>
+
+    <div class="settings-field">
+      <label class="settings-label" for="lang-select">Language</label>
+      <select id="lang-select" class="settings-select" aria-label="Select language for nudge">
+        <option value="en" selected>🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="pt">🇧🇷 Português</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="ar">🇸🇦 العربية</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="ko">🇰🇷 한국어</option>
+        <option value="zh">🇨🇳 中文</option>
+      </select>
+    </div>
+
+    <div class="settings-field">
+      <label class="settings-label" for="mobility-select">Accessibility</label>
+      <select id="mobility-select" class="settings-select" aria-label="Select mobility needs">
+        <option value="false" selected>🚶 Standard routing</option>
+        <option value="true">♿ Step-free / accessible</option>
+      </select>
+    </div>
+
+    <button class="btn-cycle" id="next-nudge-btn" aria-label="Cycle demo scenarios">
+      Cycle Demo Scenario
+    </button>
+
+    <div class="scenario-chip" id="scenario-info-text" aria-live="polite">
+      Scenario: Normal Exit Update (EN)
+    </div>
+  </aside>
+  <div class="settings-overlay" id="settings-overlay" aria-hidden="true"></div>
+
+  <!-- ── MAIN CONTENT ────────────────────────────────────────────────── -->
+  <main class="fan-main" role="main" id="main-content">
+
+    <!-- ── TAB PANELS (all visible desktop, one at a time mobile) ─── -->
+
+    <!-- PANEL: Home / Updates -->
+    <section id="tab-panel-updates" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-btn-updates">
+
+      <!-- Hero nudge card -->
+      <div class="hero-nudge-card" aria-live="polite">
+        <div class="hero-nudge-header">
+          <div class="nudge-status-row">
+            <span class="nudge-status-dot" id="nudge-status-dot"></span>
+            <span class="nudge-status-label" id="nudge-status-label">Checking status…</span>
+          </div>
+          <span class="nudge-timestamp" id="nudge-timestamp">—</span>
+        </div>
+
+        <div id="nudge-display-wrapper" class="hero-nudge-body">
+          <p class="nudge-loading-text">Receiving live route update…</p>
+        </div>
+
+        <div class="hero-nudge-footer">
+          <div class="route-tag-group">
+            <span class="route-tag-label">YOUR EXIT</span>
+            <span class="route-tag" id="route-display">—</span>
+          </div>
+          <div class="transit-mini-row">
+            <span class="transit-tip-icon" aria-hidden="true">🌿</span>
+            <div>
+              <div class="transit-mini-meta">
+                <span class="transit-meta-label">TRANSIT</span>
+                <span id="transit-status-pill" class="transit-status-pill normal">• NORMAL</span>
+              </div>
+              <p id="transit-tip-display" class="transit-tip-text">Eco-transit active.</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </aside>
-  </div>
 
-  <!-- Mobile Bottom Tab Bar (Hidden on Desktop) -->
-  <footer class="mobile-tab-bar">
-    <nav class="mobile-nav" aria-label="App Navigation" role="tablist">
-      <button class="nav-item active" data-tab="updates" role="tab" aria-selected="true" aria-controls="tab-panel-updates">
-        <span class="nav-icon" aria-hidden="true">📢</span>
-        <span class="nav-text">Updates</span>
-      </button>
-      <button class="nav-item" data-tab="route" role="tab" aria-selected="false" aria-controls="tab-panel-route">
-        <span class="nav-icon" aria-hidden="true">🗺️</span>
-        <span class="nav-text">Route</span>
-      </button>
-      <button class="nav-item" data-tab="transit" role="tab" aria-selected="false" aria-controls="tab-panel-transit">
-        <span class="nav-icon" aria-hidden="true">🌿</span>
-        <span class="nav-text">Transit</span>
-      </button>
-      <button class="nav-item" data-tab="report" role="tab" aria-selected="false" aria-controls="tab-panel-report">
-        <span class="nav-icon" aria-hidden="true">⚠️</span>
-        <span class="nav-text">Report</span>
-      </button>
-      <button class="nav-item" data-tab="info" role="tab" aria-selected="false" aria-controls="tab-panel-info">
-        <span class="nav-icon" aria-hidden="true">ℹ️</span>
-        <span class="nav-text">Info</span>
-      </button>
-    </nav>
-  </footer>
+      <!-- Secondary: Quick info strip -->
+      <div class="quick-info-strip">
+        <div class="quick-info-item">
+          <span class="quick-info-icon" aria-hidden="true">🏟</span>
+          <div>
+            <span class="quick-info-label">Venue</span>
+            <span class="quick-info-value">MetLife Stadium</span>
+          </div>
+        </div>
+        <div class="quick-info-divider" aria-hidden="true"></div>
+        <div class="quick-info-item">
+          <span class="quick-info-icon" aria-hidden="true">👥</span>
+          <div>
+            <span class="quick-info-label">Capacity</span>
+            <span class="quick-info-value">78,576</span>
+          </div>
+        </div>
+        <div class="quick-info-divider" aria-hidden="true"></div>
+        <div class="quick-info-item">
+          <span class="quick-info-icon" aria-hidden="true">🛡</span>
+          <div>
+            <span class="quick-info-label">Safety</span>
+            <span class="quick-info-value" style="color: var(--eco-green);">All Clear</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- PANEL: Egress Map -->
+    <section id="tab-panel-route" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-route" hidden>
+      <div class="section-header">
+        <h2 class="section-title">Your Egress Route</h2>
+        <p class="section-subtitle">Live wayfinding map personalised to your current location and zone status</p>
+      </div>
+      <div class="map-card">
+        <div class="map-inner" id="map-grid-container">
+          <!-- SVG generated by app.js -->
+        </div>
+        <p class="map-caption" id="map-caption-text">Awaiting route update…</p>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span><span>Safe route</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span><span>Busy — allow extra time</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span><span>Congested — avoid if possible</span></div>
+        <div class="legend-item"><span class="legend-dot legend-dashed"></span><span>Step-free route</span></div>
+      </div>
+    </section>
+
+    <!-- PANEL: Transit -->
+    <section id="tab-panel-transit" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-transit" hidden>
+      <div class="section-header">
+        <h2 class="section-title">🌿 Eco-Transit Options</h2>
+        <p class="section-subtitle">Choose the greenest way home from MetLife Stadium. Transit options are monitored in real time.</p>
+      </div>
+
+      <div class="transit-options-list">
+        <article class="transit-option-card transit-option-top">
+          <div class="transit-option-left">
+            <span class="transit-option-icon" aria-hidden="true">🚇</span>
+            <div>
+              <h3 class="transit-option-name">NJ Transit Rail</h3>
+              <p class="transit-option-detail">Direct to Penn Station · ~45 min · Trains every 12 min post-match</p>
+            </div>
+          </div>
+          <div class="transit-option-right">
+            <span class="eco-badge-lg">🌿 83% less CO₂</span>
+            <span class="transit-option-badge best">Best Option</span>
+          </div>
+        </article>
+
+        <article class="transit-option-card">
+          <div class="transit-option-left">
+            <span class="transit-option-icon" aria-hidden="true">🚌</span>
+            <div>
+              <h3 class="transit-option-name">Electric Shuttle</h3>
+              <p class="transit-option-detail">Gates A &amp; C · Every 8 min · 100% electric fleet</p>
+            </div>
+          </div>
+          <div class="transit-option-right">
+            <span class="eco-badge-lg">⚡ Zero emission</span>
+          </div>
+        </article>
+
+        <article class="transit-option-card">
+          <div class="transit-option-left">
+            <span class="transit-option-icon" aria-hidden="true">🚴</span>
+            <div>
+              <h3 class="transit-option-name">Bike &amp; Ride</h3>
+              <p class="transit-option-detail">Citi Bike at Gates B &amp; H · Connect to NJ Transit at Secaucus Junction</p>
+            </div>
+          </div>
+          <div class="transit-option-right">
+            <span class="eco-badge-lg">🌿 Carbon zero</span>
+          </div>
+        </article>
+
+        <article class="transit-option-card">
+          <div class="transit-option-left">
+            <span class="transit-option-icon" aria-hidden="true">🚗</span>
+            <div>
+              <h3 class="transit-option-name">Rideshare Carpool</h3>
+              <p class="transit-option-detail">Pickup Zone: Lot G · Match with other fans heading the same way</p>
+            </div>
+          </div>
+          <div class="transit-option-right">
+            <span class="eco-badge-lg eco-badge-amber">40% fewer trips</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Live broadcast tip injected by JS if admin sets a transit alert -->
+      <div id="transit-display-wrapper"></div>
+    </section>
+
+
+
+    <!-- PANEL: Info -->
+    <section id="tab-panel-info" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-info" hidden>
+      <div class="section-header">
+        <h2 class="section-title">Venue Information</h2>
+        <p class="section-subtitle">Everything you need to know about MetLife Stadium for the World Cup Final</p>
+      </div>
+
+      <div class="info-blocks">
+
+        <div class="info-block">
+          <h3 class="info-block-title">📍 Location &amp; Access</h3>
+          <ul class="info-list">
+            <li><strong>Address:</strong> 1 MetLife Stadium Dr, East Rutherford, NJ 07073</li>
+            <li><strong>Entrances:</strong> Gates A – H, clearly signposted from all car parks</li>
+            <li><strong>Step-free access:</strong> All gates with dedicated accessible lanes</li>
+            <li><strong>Drop-off:</strong> Zones marked Blue (accessible) and Yellow (standard)</li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">🚇 Getting Here</h3>
+          <ul class="info-list">
+            <li><strong>NJ Transit:</strong> Direct trains from New York Penn Station</li>
+            <li><strong>Bus:</strong> Express services from Port Authority Bus Terminal</li>
+            <li><strong>Driving:</strong> I-95, NJ Turnpike Exit 16W · Parking from Lot A–G</li>
+            <li><strong>Rideshare:</strong> Designated pickup/drop-off at Lot G entrance</li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">🎫 Match Day Essentials</h3>
+          <ul class="info-list">
+            <li><strong>Gates open:</strong> 3 hours before kick-off</li>
+            <li><strong>Bag policy:</strong> Clear bags only (12" × 6" × 12" max)</li>
+            <li><strong>Prohibited:</strong> Outside food/drinks, umbrellas, noisemakers</li>
+            <li><strong>Permitted:</strong> Factory-sealed water (&lt;1 litre), medical equipment</li>
+          </ul>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-block-title">🌿 Sustainability at the Cup</h3>
+          <ul class="info-list">
+            <li>100% renewable energy powering stadium operations</li>
+            <li>Zero-waste concessions with compostable packaging</li>
+            <li>Electric shuttle fleet — zero direct emissions</li>
+            <li>Carbon offset programme for every ticket holder</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── BOTTOM TAB NAV ──────────────────────────────────────────────── -->
+  <nav class="bottom-nav" aria-label="App sections" role="tablist">
+    <button id="tab-btn-updates" class="bottom-nav-btn active" data-tab="updates" role="tab" aria-selected="true" aria-controls="tab-panel-updates">
+      <span class="bottom-nav-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </span>
+      <span class="bottom-nav-label">Updates</span>
+    </button>
+    <button id="tab-btn-route" class="bottom-nav-btn" data-tab="route" role="tab" aria-selected="false" aria-controls="tab-panel-route">
+      <span class="bottom-nav-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      </span>
+      <span class="bottom-nav-label">Route</span>
+    </button>
+    <button id="tab-btn-transit" class="bottom-nav-btn" data-tab="transit" role="tab" aria-selected="false" aria-controls="tab-panel-transit">
+      <span class="bottom-nav-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><path d="M6 7h.01M18 7h.01"/></svg>
+      </span>
+      <span class="bottom-nav-label">Transit</span>
+    </button>
+    <button id="tab-btn-info" class="bottom-nav-btn" data-tab="info" role="tab" aria-selected="false" aria-controls="tab-panel-info">
+      <span class="bottom-nav-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </span>
+      <span class="bottom-nav-label">Info</span>
+    </button>
+  </nav>
 
   <script src="app.js"></script>
   <script src="session-nav.js"></script>
+  <script>
+    // Settings drawer toggle
+    const trigger = document.getElementById('settings-trigger-btn');
+    const drawer  = document.getElementById('settings-drawer');
+    const overlay = document.getElementById('settings-overlay');
+    const closeBtn = document.getElementById('settings-close-btn');
+
+    function openDrawer() {
+      drawer.hidden = false;
+      overlay.classList.add('visible');
+      trigger.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('drawer-open');
+    }
+    function closeDrawer() {
+      drawer.hidden = true;
+      overlay.classList.remove('visible');
+      trigger.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('drawer-open');
+    }
+
+    trigger.addEventListener('click', () => drawer.hidden ? openDrawer() : closeDrawer());
+    closeBtn.addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+  </script>
 </body>
 </html>

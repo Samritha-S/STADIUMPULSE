@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StadiumPulse — Final Submission</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #0A0A0B;
+      --surface: #16100F;
+      --surface-raised: #211614;
+      --border: rgba(255,255,255,0.08);
+      --ink: #F2E9E4;
+      --ink-muted: #8A7A75;
+      --maroon-primary: #7A1F2B;
+      --pulse-normal: #4A7856;
+      --font-header: "Space Grotesk", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      background: var(--bg-void);
+      color: var(--ink);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.25rem;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      width: 100%;
+    }
+    h1 {
+      font-family: var(--font-header);
+      font-size: 3rem;
+      margin: 0 0 1rem 0;
+      color: #fff;
+    }
+    p.subtitle {
+      font-size: 1.2rem;
+      color: var(--ink-muted);
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--maroon-primary);
+      border-radius: 12px;
+      padding: 2rem;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, background 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      background: var(--surface-raised);
+    }
+    .card h2 {
+      font-family: var(--font-header);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    .card p {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .card-volunteer { border-top-color: #D4A373; }
+    .card-fan { border-top-color: #4A7856; }
+    .footer {
+      text-align: center;
+      color: var(--ink-muted);
+      font-size: 0.9rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>StadiumPulse</h1>
+    <p class="subtitle">
+      AI-assisted crowd safety intelligence for FIFA World Cup 2026.<br>
+      Below is the central portal for the final hackathon submission. Select a view to explore the live endpoints (powered by Gemini 2.5 Flash).
+    </p>
+
+    <div class="grid">
+      <a href="http://127.0.0.1:8000/admin" class="card" target="_blank">
+        <h2>Control Room</h2>
+        <p>Dashboard for stadium operators. Monitors live zone forecasting and receives automated Gemini situational briefs for watch/critical zones.</p>
+      </a>
+
+      <a href="http://127.0.0.1:8000/fan" class="card card-fan" target="_blank">
+        <h2>Fan Companion</h2>
+        <p>Mobile web view for attendees. Receives personalized, multilingual routing nudges (with accessibility routing) and transit tips to bypass congestion.</p>
+      </a>
+
+      <a href="http://127.0.0.1:8000/volunteer" class="card card-volunteer" target="_blank">
+        <h2>Volunteer Triage</h2>
+        <p>Field reporting tool. Volunteers submit free-text issues in any language, and Gemini instantly classifies location, severity, and category.</p>
+      </a>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <a href="http://127.0.0.1:8000/" target="_blank" style="display: inline-block; padding: 1rem 2rem; background: var(--maroon-primary); color: #fff; text-decoration: none; border-radius: 8px; font-family: var(--font-header); font-weight: bold; font-size: 1.1rem; transition: opacity 0.2s;">
+        Launch Unified Entry Portal
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>Powered by Google Gemini 2.5 Flash • Built for FIFA World Cup 2026</p>
+      <p>Ensure the backend is running via <code>uvicorn backend.server:app --port 8000</code> before accessing.</p>
+    </div>
+  </div>
+</body>
+</html>

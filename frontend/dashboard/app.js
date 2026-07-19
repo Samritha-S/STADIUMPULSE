@@ -67,7 +67,7 @@ const MOCK_BRIEFS = [
     recommended_action: "Increase monitoring at gate 3 and gate 4. Consider a soft PA announcement advising fans that ramp_north_1 offers shorter wait times.",
     suggested_reroute_zone: "ramp_north_1",
     languages_needed: ["en", "es", "fr"],
-    generated_at: new Date(Date.now() - 300000).toISOString() // 5 mins ago
+    generated_at: new Date(Date.now() - 300000).toISOString()
   },
   {
     zone_id: "zone_east_concourse",
@@ -76,7 +76,7 @@ const MOCK_BRIEFS = [
     recommended_action: "No action required. Continue routine monitoring.",
     suggested_reroute_zone: "none",
     languages_needed: ["en", "es"],
-    generated_at: new Date(Date.now() - 900000).toISOString() // 15 mins ago
+    generated_at: new Date(Date.now() - 900000).toISOString()
   }
 ];
 
@@ -86,7 +86,6 @@ const API_BASE = "";
 let isLastFetchMocked = false;
 
 // ISOLATED DATA FETCH FUNCTIONS
-// To swap between mock and live: change only these two functions.
 async function fetchZoneStates() {
   try {
     const res = await fetch(`${API_BASE}/api/zones`);
@@ -106,8 +105,6 @@ async function fetchLatestBriefs() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     isLastFetchMocked = false;
-    // If the server returned no briefs (all zones normal), fall back to mock
-    // so the demo always has something to show in the brief feed panel.
     return data.length > 0 ? data : MOCK_BRIEFS;
   } catch (err) {
     console.warn("[StadiumPulse] /api/briefs unreachable, using mock data.", err.message);
@@ -137,12 +134,10 @@ function renderZones(zones) {
     return;
   }
 
-  // Clear initial loading state
   if (container.querySelector(".loading-state")) {
     container.innerHTML = "";
   }
 
-  // Update zone cards in place to avoid flickering and retain layout
   zones.forEach(zone => {
     const occupancyPercentage = Math.round((zone.current_count / zone.capacity) * 100);
     let statusClass = "status-badge-normal";
@@ -158,48 +153,74 @@ function renderZones(zones) {
       container.appendChild(card);
     }
 
-    // Always sync data-status so CSS top-stripe updates on every poll
     card.setAttribute("data-status", zone.status);
+
+    // Occupancy ring SVG
+    const radius = 24;
+    const circumference = 2 * Math.PI * radius;
+    const ringColor = zone.status === 'critical' ? 'var(--red)' : zone.status === 'watch' ? 'var(--amber)' : 'var(--green)';
+    const dashoffset = circumference * (1 - Math.min(occupancyPercentage, 100) / 100);
 
     card.innerHTML = `
       <div class="zone-card-header">
-        <h3 class="zone-name">${escapeHtml(zone.zone_name)}</h3>
-        <span class="status-badge ${statusClass}">${escapeHtml(zone.status)}</span>
-      </div>
-      <div class="zone-stats-list">
-        <div class="stat-item">
-          <span class="stat-label">Current Count</span>
-          <span class="stat-value">${zone.current_count}</span>
+        <div class="zone-card-left">
+          <h3 class="zone-name">${escapeHtml(zone.zone_name)}</h3>
+          <span class="status-badge ${statusClass}">${escapeHtml(zone.status)}</span>
+          <div class="capacity-bar-track"><div class="capacity-bar-fill" data-pct="${occupancyPercentage}" style="width:${Math.min(occupancyPercentage,100)}%"></div></div>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Capacity (Limit)</span>
-          <span class="stat-value">${zone.capacity} (${occupancyPercentage}%)</span>
+        <div class="zone-ring" aria-label="${occupancyPercentage}% occupancy" role="img">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+            <circle cx="28" cy="28" r="${radius}" stroke="rgba(255,255,255,0.06)" stroke-width="4" fill="none"/>
+            <circle cx="28" cy="28" r="${radius}" stroke="${ringColor}" stroke-width="4" fill="none"
+              stroke-dasharray="${circumference.toFixed(2)}"
+              stroke-dashoffset="${dashoffset.toFixed(2)}"
+              stroke-linecap="round"
+              transform="rotate(-90 28 28)"
+              class="ring-arc"/>
+          </svg>
+          <span class="ring-pct">${occupancyPercentage}%</span>
         </div>
       </div>
       <div class="zone-forecast-bar">
-        <div>Forecast 15m: <span class="forecast-val">${zone.forecast_count_15min}</span></div>
-        <div>Forecast 30m: <span class="forecast-val">${zone.forecast_count_30min}</span></div>
+        <div>15m: <span class="forecast-val">${zone.forecast_count_15min.toLocaleString()}</span></div>
+        <div>30m: <span class="forecast-val">${zone.forecast_count_30min.toLocaleString()}</span></div>
+        <div class="zone-capacity-note">${zone.current_count.toLocaleString()} / ${zone.capacity.toLocaleString()}</div>
       </div>
     `;
   });
 
-  // Remove any cards that are no longer active
   const activeIds = new Set(zones.map(z => z.zone_id));
   container.querySelectorAll("[data-zone-id]").forEach(card => {
-    const cid = card.getAttribute("data-zone-id");
-    if (!activeIds.has(cid)) {
-      card.remove();
-    }
+    if (!activeIds.has(card.getAttribute("data-zone-id"))) card.remove();
   });
 }
 
 const renderedBriefSignatures = new Set();
 
+function renderCriticalRail(briefs) {
+  const rail = document.getElementById('critical-alert-rail');
+  if (!rail) return;
+  const criticals = briefs.filter(b => b.severity === 'critical');
+  if (criticals.length === 0) {
+    rail.style.display = 'none';
+    return;
+  }
+  rail.style.display = 'flex';
+  rail.innerHTML = criticals.map(b => `
+    <article class="rail-card" role="alert">
+      <span class="rail-zone">${escapeHtml(b.zone_id.replace('zone_','').replace(/_/g,' ').toUpperCase())}</span>
+      <p class="rail-summary">${escapeHtml(b.summary_text.slice(0, 120))}${b.summary_text.length > 120 ? '…' : ''}</p>
+      <span class="rail-time">${new Date(b.generated_at).toLocaleTimeString()}</span>
+    </article>
+  `).join('');
+}
+
 function renderBriefs(briefs, reports = []) {
+  renderCriticalRail(briefs);
+  
   const container = document.getElementById("brief-feed-container");
   if (!container) return;
 
-  // Combine automated briefs and volunteer reports into one feed, sorted by generated_at desc
   const combined = [];
   briefs.forEach(b => {
     combined.push({
@@ -230,7 +251,6 @@ function renderBriefs(briefs, reports = []) {
     });
   });
 
-  // Sort: most recent first
   combined.sort((a, b) => new Date(b.generated_at) - new Date(a.generated_at));
 
   if (combined.length === 0) {
@@ -238,7 +258,6 @@ function renderBriefs(briefs, reports = []) {
     return;
   }
 
-  // Clear initial loading state
   if (container.querySelector(".loading-state")) {
     container.innerHTML = "";
   }
@@ -255,14 +274,12 @@ function renderBriefs(briefs, reports = []) {
     activeSignatures.add(signature);
 
     const isNew = !renderedBriefSignatures.has(signature);
-    if (isNew) {
-      renderedBriefSignatures.add(signature);
-    }
+    if (isNew) renderedBriefSignatures.add(signature);
 
     const formattedTime = new Date(item.generated_at).toLocaleTimeString();
     const severityLabel = item.severity.toUpperCase();
     const typeBadge = item.type === "auto" ? "badge-auto" : "badge-vol";
-    const typeLabel = item.type === "auto" ? "AUTO ALERT" : "VOLUNTEER FIELD REPORT";
+    const typeLabel = item.type === "auto" ? "AUTO ALERT" : "FIELD REPORT";
 
     let card = existingBriefCards[signature];
     if (!card) {
@@ -302,7 +319,6 @@ function renderBriefs(briefs, reports = []) {
         ` : ''}
       `;
     } else {
-      // Volunteer specifics
       innerHTML += `
         <div class="brief-action-box" style="margin-top: 0.5rem; padding: 0.5rem 0.75rem;">
           <span class="action-label" style="font-size: 0.65rem; color: var(--ink-muted);">Original Text (${item.lang.toUpperCase()})</span>
@@ -317,23 +333,16 @@ function renderBriefs(briefs, reports = []) {
     card.innerHTML = innerHTML;
   });
 
-  // Remove stale cards
   Object.keys(existingBriefCards).forEach(sig => {
-    if (!activeSignatures.has(sig)) {
-      existingBriefCards[sig].remove();
-    }
+    if (!activeSignatures.has(sig)) existingBriefCards[sig].remove();
   });
 
-  // Re-append in combined order
   combined.forEach(item => {
     const card = container.querySelector(`[data-brief-id="${item.id}"]`);
-    if (card) {
-      container.appendChild(card);
-    }
+    if (card) container.appendChild(card);
   });
 }
 
-// Helper: Escape HTML strings to prevent XSS
 function escapeHtml(str) {
   return str
     .replace(/&/g, "&amp;")
@@ -346,7 +355,6 @@ function escapeHtml(str) {
 let consecutiveFailures = 0;
 let pollingIntervalId = null;
 
-// Refresh triggers
 async function loadDashboardData() {
   try {
     const [zones, briefs, reports] = await Promise.all([
@@ -376,14 +384,10 @@ async function loadDashboardData() {
       }
     }
 
-    // Update stat strip elements
     const zonesCountEl = document.getElementById("stat-zones-count");
-    if (zonesCountEl) {
-      zonesCountEl.textContent = zones.length;
-    }
+    if (zonesCountEl) zonesCountEl.textContent = zones.length;
     const alertsCountEl = document.getElementById("stat-alerts-count");
     if (alertsCountEl) {
-      // Calculate active alerts: automated watch/critical + volunteer reports
       const activeAlerts = briefs.filter(b => b.severity !== "low").length + reports.length;
       alertsCountEl.textContent = activeAlerts;
     }
@@ -396,7 +400,6 @@ async function loadDashboardData() {
   }
 }
 
-// Clock updates
 function updateClock() {
   const clockEl = document.getElementById("clock");
   if (clockEl) {
@@ -404,18 +407,12 @@ function updateClock() {
   }
 }
 
-// Initialise on load
 document.addEventListener("DOMContentLoaded", () => {
   loadDashboardData();
-  
-  // Real time clock updating
   updateClock();
   setInterval(updateClock, 1000);
-
-  // Setup auto-polling every 3 seconds
   pollingIntervalId = setInterval(loadDashboardData, 3000);
 
-  // Manual refresh hook (resets offline pauses)
   const refreshBtn = document.getElementById("refresh-btn");
   if (refreshBtn) {
     refreshBtn.addEventListener("click", () => {
@@ -428,6 +425,67 @@ document.addEventListener("DOMContentLoaded", () => {
       loadDashboardData();
       if (!pollingIntervalId) {
         pollingIntervalId = setInterval(loadDashboardData, 3000);
+      }
+    });
+  }
+
+  // ── Transit Alert Console Logic ──
+  const transitForm = document.getElementById("transit-alert-form");
+  const transitStatusSelect = document.getElementById("transit-status-select");
+  const transitCustomTip = document.getElementById("transit-custom-tip");
+  const clearTransitBtn = document.getElementById("clear-transit-btn");
+  const transitFeedback = document.getElementById("transit-console-feedback");
+
+  // Load current active transit alert at startup
+  fetch(`${API_BASE}/api/transit-alert`)
+    .then(res => res.json())
+    .then(data => {
+      if (transitStatusSelect && data.transit_status) transitStatusSelect.value = data.transit_status;
+      if (transitCustomTip && data.custom_tip) transitCustomTip.value = data.custom_tip;
+    })
+    .catch(err => console.warn("Failed to load startup transit alert:", err));
+
+  if (transitForm) {
+    transitForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const status = transitStatusSelect.value;
+      const tip = transitCustomTip.value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/transit-alert`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transit_status: status, custom_tip: tip })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        transitFeedback.textContent = "✓ Advisory broadcasted successfully!";
+        transitFeedback.style.color = "var(--green)";
+        setTimeout(() => { transitFeedback.textContent = ""; }, 3000);
+      } catch (err) {
+        transitFeedback.textContent = "✕ Failed to broadcast: " + err.message;
+        transitFeedback.style.color = "var(--red)";
+      }
+    });
+  }
+
+  if (clearTransitBtn) {
+    clearTransitBtn.addEventListener("click", async () => {
+      if (transitCustomTip) transitCustomTip.value = "";
+      if (transitStatusSelect) transitStatusSelect.value = "normal";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/transit-alert`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transit_status: "normal", custom_tip: "" })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        transitFeedback.textContent = "✓ Override cleared.";
+        transitFeedback.style.color = "var(--green)";
+        setTimeout(() => { transitFeedback.textContent = ""; }, 3000);
+      } catch (err) {
+        transitFeedback.textContent = "✕ Failed to clear: " + err.message;
+        transitFeedback.style.color = "var(--red)";
       }
     });
   }

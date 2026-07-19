@@ -33,10 +33,10 @@ MAX_HISTORY_LEN = 20
 # Host venue for the FIFA World Cup 2026 Final, July 19 2026.
 #
 # Real capacity: 78,576 (tournament configuration).
-# Four zones modelled here representing the main concourse levels.
-# Combined zone capacity of ~74,000 covers the bulk of spectator circulation
-# areas; suite/club-level capacity (~4,500) is excluded from crowd-flow
-# modelling for this demo.
+# Seven zones modelled here representing the main concourse levels and gates.
+# Combined zone capacity of ~130,000 covers the bulk of spectator circulation
+# areas across the bowl; 'critical_seed' zones start already at crisis density
+# so the dashboard reads as a live operational picture from the first load.
 #
 # NOTE: Zone names and gate letters follow the NFL-convention used at MetLife
 # (levels 100/200/300, gates A–H).  Specific concourse-to-gate assignments
@@ -72,6 +72,21 @@ ZONE_DEFS: List[Dict[str, Any]] = [
         },
     },
     {
+        # 200 Level east concourse — already at watch-level density on startup
+        # (spike curve placed at tick=16 so initial seed points land in the
+        #  surge phase, giving immediate "watch" status without needing escalation)
+        "zone_id": "zone_200_gate_e",
+        "zone_name": "200 Level – Gate E Concourse",
+        "capacity": 18000,
+        "scenario_type": "watch_seed",  # custom: seeds into watch-range density
+        "metadata": {
+            "zone_id": "zone_200_gate_e",
+            "zone_name": "200 Level – Gate E Concourse",
+            "connected_gates": ["gate_e"],
+            "accessible_routes": ["ramp_200_east", "elevator_200_e"],
+        },
+    },
+    {
         # 300 Level upper-deck concourse — fast-escalating zone.
         # Starts at ~70% capacity on tick 0 and reaches "critical" within 8–12
         # ticks, making congestion escalation visible quickly in the demo.
@@ -87,7 +102,21 @@ ZONE_DEFS: List[Dict[str, Any]] = [
         },
     },
     {
-        # Field-level concourse — lower capacity standing/VIP circulation area
+        # 300 Level north concourse — already at critical density from startup.
+        # Demonstrates the full critical-alert state immediately on first load.
+        "zone_id": "zone_300_gate_h",
+        "zone_name": "300 Level – Gate H Concourse",
+        "capacity": 17500,
+        "scenario_type": "critical_seed",  # starts and stays at ~93% capacity
+        "metadata": {
+            "zone_id": "zone_300_gate_h",
+            "zone_name": "300 Level – Gate H Concourse",
+            "connected_gates": ["gate_h"],
+            "accessible_routes": ["ramp_300_north", "elevator_300_h"],
+        },
+    },
+    {
+        # Field-level south concourse — lower capacity standing/VIP circulation area
         "zone_id": "zone_field_gate_b",
         "zone_name": "Field Level – Gate B Concourse",
         "capacity": 18500,
@@ -97,6 +126,19 @@ ZONE_DEFS: List[Dict[str, Any]] = [
             "zone_name": "Field Level – Gate B Concourse",
             "connected_gates": ["gate_b"],
             "accessible_routes": ["ramp_field_south"],
+        },
+    },
+    {
+        # Field-level east access corridor — steady normal, low-density area
+        "zone_id": "zone_field_gate_d",
+        "zone_name": "Field Level – Gate D Concourse",
+        "capacity": 12000,
+        "scenario_type": "normal",
+        "metadata": {
+            "zone_id": "zone_field_gate_d",
+            "zone_name": "Field Level – Gate D Concourse",
+            "connected_gates": ["gate_d"],
+            "accessible_routes": ["ramp_field_east", "elevator_field_d"],
         },
     },
 ]
@@ -159,6 +201,29 @@ def _next_count_escalating(tick: int, capacity: int) -> int:
     else:
         base = 0.95 * capacity
     noise = random.randint(-10, 10)
+    return max(0, min(capacity, int(base + noise)))
+
+
+def _next_count_critical_seed(capacity: int) -> int:
+    """
+    Permanently-critical curve: stays at ~93% of capacity with small noise.
+    Used for zones that should appear as 'critical' from the very first load,
+    giving reviewers an immediate view of the full alert UI without waiting
+    for the escalating curve to complete.
+    """
+    base = 0.93 * capacity
+    noise = random.randint(-50, 50)
+    return max(0, min(capacity, int(base + noise)))
+
+
+def _next_count_watch_seed(capacity: int) -> int:
+    """
+    Watch-level seed curve: sits at ~78% of capacity with small noise.
+    Used for zones that should appear in 'watch' status from startup,
+    giving the dashboard a mixed normal/watch/critical picture on first load.
+    """
+    base = 0.78 * capacity
+    noise = random.randint(-30, 30)
     return max(0, min(capacity, int(base + noise)))
 
 
@@ -263,6 +328,10 @@ class SimulationState:
             return _next_count_escalating(tick, capacity)
         elif scenario_type == "spike":
             return _next_count_spike(tick, capacity)
+        elif scenario_type == "critical_seed":
+            return _next_count_critical_seed(capacity)
+        elif scenario_type == "watch_seed":
+            return _next_count_watch_seed(capacity)
         else:  # "normal" and any unknown type
             return _next_count_normal(capacity)
 

@@ -1,17 +1,5 @@
 /**
  * session-nav.js — Shared persistent identity nav bar for StadiumPulse portals.
- *
- * Drop <script src="/session-nav.js"></script> (or the relative equivalent) at
- * the bottom of every portal's <body>.  The script reads sessionStorage set by
- * the / entry screen and injects a fixed top bar showing:
- *   • The StadiumPulse wordmark + live-indicator dot
- *   • Current user name + role badge (or "Guest" with a prompt)
- *   • Links to the other two portals
- *   • A "Log out" button that clears sessionStorage and returns to /
- *
- * No framework dependency — plain vanilla JS + inline CSS.
- * Deliberate scope decision: session identity is client-side only (sessionStorage).
- * Production deployment would require server-side auth (OAuth, session tokens).
  */
 
 (function () {
@@ -20,19 +8,19 @@
   const ROLE_LABELS = {
     fan: "Fan Companion",
     ops: "Ops Staff",
-    volunteer: "Volunteer",
+    report: "Report Desk",
   };
 
   const PORTALS = [
-    { key: "ops",       href: "/admin",     label: "Ops Center" },
-    { key: "fan",       href: "/fan",       label: "Fan View"   },
-    { key: "volunteer", href: "/volunteer", label: "Volunteer"  },
+    { key: "ops",    href: "/admin",   label: "Ops Center" },
+    { key: "fan",    href: "/fan",     label: "Fan View"   },
+    { key: "report", href: "/report",  label: "Report Desk" },
   ];
 
   function detectCurrentPortal() {
     const p = window.location.pathname;
-    if (p.startsWith("/admin"))     return "ops";
-    if (p.startsWith("/volunteer")) return "volunteer";
+    if (p.startsWith("/admin"))  return "ops";
+    if (p.startsWith("/report")) return "report";
     return "fan";
   }
 
@@ -51,7 +39,7 @@
     // ── Styles ────────────────────────────────────────────────────────────────
     const style = document.createElement("style");
     style.textContent = `
-      :root { --sp-nav-h: 44px; }
+      :root { --sp-nav-h: 48px; }
 
       /* push page content down by nav height */
       body { padding-top: var(--sp-nav-h) !important; }
@@ -74,11 +62,13 @@
         position: fixed;
         top: 0; left: 0; right: 0;
         height: var(--sp-nav-h);
-        background: #12100F;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
+        background: rgba(18, 14, 14, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255,255,255,0.06);
         display: flex;
         align-items: center;
-        padding: 0 1rem;
+        padding: 0 1.5rem;
         gap: 0.75rem;
         z-index: 9999;
         font-family: "Inter", "Space Grotesk", system-ui, sans-serif;
@@ -88,62 +78,63 @@
       #sp-session-nav .sp-brand {
         font-family: "Space Grotesk", system-ui, sans-serif;
         font-weight: 700;
-        font-size: 0.85rem;
-        color: #F2E9E4;
+        font-size: 0.9rem;
+        color: #F0E8E3;
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: 0.45rem;
+        gap: 0.5rem;
         flex-shrink: 0;
+        letter-spacing: -0.02em;
       }
 
       #sp-session-nav .sp-dot {
-        width: 7px; height: 7px;
-        background: #7A1F2B;
+        width: 8px; height: 8px;
+        background: #8B2333;
         border-radius: 50%;
         flex-shrink: 0;
-        box-shadow: 0 0 6px rgba(122,31,43,0.8);
+        box-shadow: 0 0 8px rgba(139,35,51,0.8);
         animation: sp-pulse-dot 2s ease-in-out infinite;
       }
 
       @keyframes sp-pulse-dot {
-        0%, 100% { opacity: 1; }
-        50%       { opacity: 0.45; }
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: 0.45; transform: scale(1.15); }
       }
 
       #sp-session-nav .sp-divider {
-        width: 1px; height: 20px;
-        background: rgba(255,255,255,0.1);
+        width: 1px; height: 18px;
+        background: rgba(255,255,255,0.08);
         flex-shrink: 0;
       }
 
       #sp-session-nav .sp-identity {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.5rem;
         flex-shrink: 0;
-        color: #F2E9E4;
+        color: #F0E8E3;
         font-weight: 500;
       }
 
       #sp-session-nav .sp-role-badge {
-        font-size: 0.6rem;
+        font-size: 0.58rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: #8A7A75;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.1);
+        color: #8c7d78;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 4px;
         padding: 0.1rem 0.4rem;
       }
 
       #sp-session-nav .sp-guest-prompt {
-        font-size: 0.7rem;
-        color: #8A7A75;
+        font-size: 0.72rem;
+        color: #8c7d78;
       }
       #sp-session-nav .sp-guest-prompt a {
-        color: #B06070;
+        color: #D66B78;
         text-decoration: underline;
       }
 
@@ -152,46 +143,50 @@
       #sp-session-nav .sp-portal-links {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.35rem;
       }
 
       #sp-session-nav .sp-portal-link {
-        color: #8A7A75;
+        color: #8c7d78;
         text-decoration: none;
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 0.22rem 0.55rem;
-        border-radius: 5px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.3rem 0.65rem;
+        border-radius: 4px;
         border: 1px solid transparent;
-        transition: color 0.15s, border-color 0.15s;
+        transition: all 0.15s;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
       #sp-session-nav .sp-portal-link:hover {
-        color: #F2E9E4;
-        border-color: rgba(255,255,255,0.12);
+        color: #F0E8E3;
+        background: rgba(255,255,255,0.02);
       }
       #sp-session-nav .sp-portal-link.active {
-        color: #F2E9E4;
-        font-weight: 600;
-        border-color: rgba(122,31,43,0.4);
-        background: rgba(122,31,43,0.1);
+        color: #F0E8E3;
+        background: rgba(139,35,51,0.08);
+        border-color: rgba(139,35,51,0.22);
       }
 
       #sp-session-nav .sp-logout {
-        background: none;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 5px;
-        color: #8A7A75;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 4px;
+        color: #8c7d78;
         font-family: inherit;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 0.22rem 0.65rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.3rem 0.65rem;
         cursor: pointer;
-        transition: color 0.15s, border-color 0.15s;
+        transition: all 0.15s;
         flex-shrink: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
       #sp-session-nav .sp-logout:hover {
-        color: #F2E9E4;
-        border-color: rgba(255,255,255,0.25);
+        color: #F0E8E3;
+        border-color: rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.02);
       }
     `;
     document.head.appendChild(style);
