@@ -626,3 +626,76 @@ body.mobile-body {
   outline: 2px solid var(--pulse-normal);
   outline-offset: 2px;
 }
+
+/* ── Promoted Transit Cards ──────────────────────────────────── */
+.transit-section {
+  width: 100%;
+  animation: slide-up-transit 0.3s var(--ease-out);
+}
+
+@keyframes slide-up-transit {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.transit-card {
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.transit-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transit-card-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.transit-card-title {
+  font-family: var(--font-header);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.transit-card-text {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+/* Normal status / Eco sustainability mode */
+.transit-card-eco {
+  background: rgba(74, 120, 86,  0.08);
+  border-color: rgba(74, 120, 86,  0.18);
+}
+.transit-card-eco .transit-card-title {
+  color: #72C085;
+}
+.transit-card-eco .transit-card-text {
+  color: var(--ink);
+}
+
+/* Watch/Critical status / Speed route mode */
+.transit-card-speed {
+  background: rgba(122, 31, 43, 0.08);
+  border-color: rgba(122, 31, 43, 0.18);
+}
+.transit-card-speed .transit-card-title {
+  color: var(--accent-soft);
+}
+.transit-card-speed .transit-card-text {
+  color: var(--ink);
+}
+

@@ -376,8 +376,21 @@ async function loadDashboardData() {
       }
     }
 
+    // Update stat strip elements
+    const zonesCountEl = document.getElementById("stat-zones-count");
+    if (zonesCountEl) {
+      zonesCountEl.textContent = zones.length;
+    }
+    const alertsCountEl = document.getElementById("stat-alerts-count");
+    if (alertsCountEl) {
+      // Calculate active alerts: automated watch/critical + volunteer reports
+      const activeAlerts = briefs.filter(b => b.severity !== "low").length + reports.length;
+      alertsCountEl.textContent = activeAlerts;
+    }
+
     renderZones(zones);
     renderBriefs(briefs, reports);
+
   } catch (error) {
     console.error("Failed to load dashboard data:", error);
   }

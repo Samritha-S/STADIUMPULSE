@@ -52,6 +52,11 @@
           </div>
         </section>
 
+        <!-- Promoted Transit and Route Tip Section -->
+        <section class="transit-section" id="transit-display-wrapper" aria-label="Route and Transit Information" style="display: none;">
+          <!-- Dynamically generated card will be injected here by app.js -->
+        </section>
+
         <!-- Dynamic SVG Schematic Map -->
         <section class="map-placeholder" aria-label="Interactive Stadium Map">
           <div class="map-grid" id="map-grid-container">
@@ -89,7 +94,7 @@
 
       <!-- Profile dropdowns passed through to fetchNudge via app.js -->
       <div class="profile-selector">
-        <label for="lang-select">Language</label>
+        <label for="lang-select">Language (10 Supported)</label>
         <select id="lang-select" aria-label="Select language for nudge">
           <option value="en" selected>English (EN)</option>
           <option value="es">Spanish (ES)</option>
@@ -97,10 +102,14 @@
           <option value="pt">Portuguese (PT)</option>
           <option value="de">German (DE)</option>
           <option value="ar">Arabic (AR)</option>
+          <option value="it">Italian (IT)</option>
           <option value="ja">Japanese (JA)</option>
           <option value="ko">Korean (KO)</option>
           <option value="zh">Chinese (ZH)</option>
         </select>
+        <div style="font-size: 0.65rem; color: var(--ink-muted); margin-top: 0.25rem; font-weight: 500;">
+          ✨ <span style="color: var(--accent-soft);">Live Generative translation active</span>
+        </div>
       </div>
 
       <div class="profile-selector">
@@ -110,6 +119,7 @@
           <option value="true">Step-free / accessible route</option>
         </select>
       </div>
+
 
       <button class="btn btn-secondary" id="next-nudge-btn" aria-label="Cycle to next demo scenario">
         Next Scenario Example

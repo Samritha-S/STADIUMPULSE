@@ -33,6 +33,13 @@
   </header>
 
   <main class="dashboard-layout">
+    <!-- Quick System Status summary bar -->
+    <section class="dashboard-stat-strip" aria-label="System Metrics Summary">
+      <div class="stat-pill"><span class="stat-pill-dot bg-maroon"></span> <span id="stat-zones-count">...</span> Zones Monitored</div>
+      <div class="stat-pill"><span class="stat-pill-dot bg-green"></span> 10 Languages Supported</div>
+      <div class="stat-pill"><span class="stat-pill-dot bg-amber"></span> <span id="stat-alerts-count">...</span> Alerts & Reports Active</div>
+    </section>
+
     <!-- Zone Monitoring Panel -->
     <section class="panel-section zone-monitoring" aria-labelledby="zone-section-title">
       <header class="panel-header">

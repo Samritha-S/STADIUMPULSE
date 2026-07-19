@@ -16,7 +16,11 @@ The operational gap is specific:
 - **Fans** receive only static signage or PA announcements in one or two languages that may not be theirs, with no route-specific guidance personalised to their position or accessibility needs.
 - **Communication delay** compounds the problem: by the time a brief is written and approved and a PA announcement broadcast, the zone state may have already changed.
 
-StadiumPulse is a proof-of-concept addressing these two gaps simultaneously — automating the situational brief for operators and generating personalised, multilingual route nudges for individual fans, both derived from the same underlying zone forecast.
+StadiumPulse is a real-time crowd management solution that integrates four core features into a unified pipeline:
+1. **Automated situational briefs** to support stadium operators in the control room.
+2. **Personalized, multilingual fan nudges** that translate route guidance dynamically into 10 languages (EN, ES, FR, PT, DE, AR, IT, JA, KO, ZH).
+3. **Transportation & sustainability guidance** via the `transit_tip` framework, providing eco-nudge sustainability messaging during normal states and time-saving route recommendations to bypass congestion during surges.
+4. **Volunteer incident triage** allowing volunteers to submit raw field updates in any language, automatically classifying location, category, and severity for control-room mapping.
 
 ---
 

@@ -85,6 +85,7 @@ let lastNudgeSignature = "";
 
 function renderNudge(nudge, urgency) {
   const displayWrapper = document.getElementById("nudge-display-wrapper");
+  const transitWrapper = document.getElementById("transit-display-wrapper");
   if (!displayWrapper) return;
 
   const isMobility = nudge.mobility_needs;
@@ -109,11 +110,15 @@ function renderNudge(nudge, urgency) {
 
   const highlightClass = isChanged ? " nudge-highlight" : "";
 
+  // Render main nudge card
   displayWrapper.innerHTML = `
     <article class="nudge-card ${nudgeClass}${highlightClass}">
       <div class="nudge-meta-bar">
         <span class="urgency-badge ${badgeClass}">${labelText}</span>
-        <span class="lang-indicator">${nudge.language.toUpperCase()}</span>
+        <div style="display: flex; gap: 0.35rem; align-items: center;">
+          <span class="lang-indicator">${nudge.language.toUpperCase()}</span>
+          <span style="font-size: 0.58rem; color: var(--accent-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(122, 31, 43, 0.15); padding: 0.12rem 0.35rem; border-radius: 4px;">Live Multilingual AI Channel</span>
+        </div>
       </div>
       <p class="nudge-body" id="nudge-message">${escapeHtml(nudge.message_text)}</p>
       
@@ -130,15 +135,32 @@ function renderNudge(nudge, urgency) {
       ${isMobility ? `
         <span class="accessibility-pill">✓ Accessible Egress (Step-free)</span>
       ` : ''}
-
-      ${nudge.transit_tip ? `
-        <div class="transit-tip" role="note" aria-label="Transportation tip">
-          <span class="transit-tip-icon" aria-hidden="true">🌿</span>
-          <span class="transit-tip-text">${escapeHtml(nudge.transit_tip)}</span>
-        </div>
-      ` : ''}
     </article>
   `;
+
+  // Render the transit tip inside its own dedicated card
+  if (transitWrapper) {
+    if (nudge.transit_tip) {
+      const isEco = (urgency === "low" || !urgency);
+      const tipClass = isEco ? "transit-card-eco" : "transit-card-speed";
+      const tipIcon = isEco ? "🌿" : "⚡";
+      const tipTitle = isEco ? "Getting There — Eco Transit Suggestion" : "Getting There — Fast Alternate Route";
+      
+      transitWrapper.innerHTML = `
+        <div class="transit-card ${tipClass}">
+          <div class="transit-card-header">
+            <span class="transit-card-icon">${tipIcon}</span>
+            <h4 class="transit-card-title">${tipTitle}</h4>
+          </div>
+          <p class="transit-card-text">${escapeHtml(nudge.transit_tip)}</p>
+        </div>
+      `;
+      transitWrapper.style.display = "block";
+    } else {
+      transitWrapper.innerHTML = "";
+      transitWrapper.style.display = "none";
+    }
+  }
 
   // Update the SVG wayfinding map whenever the nudge card updates
   renderMap(nudge.suggested_route, urgency, isMobility, isChanged);

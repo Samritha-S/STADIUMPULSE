@@ -240,6 +240,40 @@ body {
   outline-offset: 3px;
 }
 
+/* ── Quick status summary bar ────────────────────────────────── */
+.dashboard-stat-strip {
+  grid-column: 1 / -1;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+.stat-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bg-maroon { background: var(--maroon-primary); }
+.bg-green  { background: var(--pulse-normal); }
+.bg-amber  { background: var(--pulse-watch); }
+
 /* ── Main layout (zone grid | brief feed) ──────────────────── */
 .dashboard-layout {
   display: grid;
