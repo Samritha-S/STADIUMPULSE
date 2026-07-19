@@ -1,35 +1,41 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "backend/server.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.py"
+      "source": "/api/:path*",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/admin/(.*)",
-      "dest": "backend/server.py"
+      "source": "/admin",
+      "destination": "/frontend/dashboard/index.html"
     },
     {
-      "src": "/fan/(.*)",
-      "dest": "backend/server.py"
+      "source": "/admin/:path*",
+      "destination": "/frontend/dashboard/:path*"
     },
     {
-      "src": "/report/(.*)",
-      "dest": "backend/server.py"
+      "source": "/fan",
+      "destination": "/frontend/fan-view/index.html"
     },
     {
-      "src": "/submission",
-      "dest": "backend/server.py"
+      "source": "/fan/:path*",
+      "destination": "/frontend/fan-view/:path*"
     },
     {
-      "src": "/(.*)",
-      "dest": "backend/server.py"
+      "source": "/report",
+      "destination": "/frontend/report/index.html"
+    },
+    {
+      "source": "/report/:path*",
+      "destination": "/frontend/report/:path*"
+    },
+    {
+      "source": "/submission",
+      "destination": "/submission.html"
+    },
+    {
+      "source": "/",
+      "destination": "/frontend/fan-view/index.html"
     }
   ]
 }
