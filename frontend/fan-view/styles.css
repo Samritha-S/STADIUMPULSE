@@ -325,6 +325,145 @@ body {
   border: 1px solid var(--border-subtle);
 }
 
+/* Settings section label */
+.settings-section-label {
+  font-family: var(--font-header);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 0.5rem 0 0.15rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 0.25rem;
+}
+
+/* Toggle row */
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.settings-toggle-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.settings-toggle-desc {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+/* Toggle switch button */
+.settings-toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+}
+
+.settings-toggle:focus-visible {
+  outline: 2px solid var(--maroon);
+  outline-offset: 2px;
+}
+
+.settings-toggle.is-on {
+  background: var(--maroon);
+  border-color: var(--maroon);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+  transition: transform 0.2s var(--ease-out), background 0.2s;
+}
+
+.settings-toggle.is-on .toggle-thumb {
+  transform: translateX(18px);
+  background: #fff;
+}
+
+/* ── Screen-reader-only utility ────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── ACCESSIBILITY MODIFIERS ───────────────────────────────────────── */
+
+/* High contrast mode */
+.a11y-high-contrast {
+  --ink:           #FFFFFF;
+  --ink-secondary: #E8E8E8;
+  --ink-muted:     #BBBBBB;
+  --border:        rgba(255,255,255,0.25);
+  --border-strong: rgba(255,255,255,0.45);
+  --surface:       #0a0a0a;
+  --surface-raised:#111111;
+  --surface-hero:  #0f0f0f;
+}
+
+/* Reduce motion mode */
+.a11y-reduce-motion *,
+.a11y-reduce-motion *::before,
+.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* Font size scaling */
+[data-font-size="large"] {
+  --font-scale: 1.15;
+  font-size: calc(1rem * 1.15);
+}
+
+[data-font-size="xlarge"] {
+  --font-scale: 1.3;
+  font-size: calc(1rem * 1.3);
+}
+
+[data-font-size="large"] .nudge-message,
+[data-font-size="xlarge"] .nudge-message {
+  font-size: calc(1.2rem * var(--font-scale, 1));
+}
+
+[data-font-size="large"] .hero-nudge-body p,
+[data-font-size="xlarge"] .hero-nudge-body p {
+  font-size: calc(1rem * var(--font-scale, 1));
+}
+
+/* Nudge message text (used in pre-filled mock card) */
+.nudge-message-text {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+
 /* ── MAIN CONTENT AREA ──────────────────────────────────────────────── */
 .fan-main {
   max-width: 680px;

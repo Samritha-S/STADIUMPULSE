@@ -527,6 +527,73 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ── Accessibility toggle controls ─────────────────────────────────
+
+  /**
+   * Generic toggle handler: updates aria-checked, adds/removes a class on <html>
+   * and persists the preference to sessionStorage.
+   */
+  function bindToggle(id, htmlClass, storageKey) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+
+    // Restore persisted state
+    const stored = sessionStorage.getItem(storageKey);
+    if (stored === "true") {
+      btn.setAttribute("aria-checked", "true");
+      btn.classList.add("is-on");
+      document.documentElement.classList.add(htmlClass);
+    }
+
+    btn.addEventListener("click", () => {
+      const isOn = btn.getAttribute("aria-checked") === "true";
+      const next = !isOn;
+      btn.setAttribute("aria-checked", String(next));
+      btn.classList.toggle("is-on", next);
+      document.documentElement.classList.toggle(htmlClass, next);
+      sessionStorage.setItem(storageKey, String(next));
+    });
+  }
+
+  bindToggle("high-contrast-toggle", "a11y-high-contrast",  "sp_high_contrast");
+  bindToggle("reduce-motion-toggle",  "a11y-reduce-motion",  "sp_reduce_motion");
+  bindToggle("screen-reader-toggle",  "a11y-screen-reader",  "sp_screen_reader");
+
+  // Font size select
+  const fontSizeEl = document.getElementById("font-size-select");
+  if (fontSizeEl) {
+    // Restore persisted value
+    const storedSize = sessionStorage.getItem("sp_font_size");
+    if (storedSize) {
+      fontSizeEl.value = storedSize;
+      document.documentElement.setAttribute("data-font-size", storedSize);
+    }
+    fontSizeEl.addEventListener("change", () => {
+      document.documentElement.setAttribute("data-font-size", fontSizeEl.value);
+      sessionStorage.setItem("sp_font_size", fontSizeEl.value);
+    });
+  }
+
+  // Screen-reader mode: announce nudge updates via a dedicated live region
+  function maybeAnnounce(text) {
+    if (!document.documentElement.classList.contains("a11y-screen-reader")) return;
+    let region = document.getElementById("sr-announce-region");
+    if (!region) {
+      region = document.createElement("div");
+      region.id = "sr-announce-region";
+      region.setAttribute("aria-live", "assertive");
+      region.setAttribute("aria-atomic", "true");
+      region.className = "sr-only";
+      document.body.appendChild(region);
+    }
+    region.textContent = "";
+    // Delay to ensure screen readers pick up the change
+    setTimeout(() => { region.textContent = text; }, 50);
+  }
+
+  // Expose so renderNudge can call it
+  window.spAnnounce = maybeAnnounce;
+
   // ── Tab navigation (coordinated sidebar + bottom tab bar) ────────
   const TABS = [
     { key: "updates", panel: "tab-panel-updates" },

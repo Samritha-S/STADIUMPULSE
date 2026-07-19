@@ -34,13 +34,15 @@
     </div>
   </header>
 
-  <!-- ── SETTINGS DRAWER (demo controls, hidden by default) ──────────── -->
-  <aside id="settings-drawer" class="settings-drawer" aria-label="Demo Settings" hidden>
+  <!-- ── SETTINGS DRAWER ──────────────────────────────────────────────── -->
+  <aside id="settings-drawer" class="settings-drawer" aria-label="Fan Profile & Accessibility Settings" hidden>
     <div class="settings-drawer-header">
-      <span class="settings-drawer-title">Fan Profile &amp; Demo Controls</span>
+      <span class="settings-drawer-title">Fan Profile &amp; Accessibility</span>
       <button class="settings-close-btn" id="settings-close-btn" aria-label="Close settings">✕</button>
     </div>
-    <p class="settings-drawer-desc">Simulate different fan profiles to preview personalised routing in each language and accessibility mode.</p>
+    <p class="settings-drawer-desc">Personalise your companion experience — language, routing, and accessibility settings are saved per session.</p>
+
+    <div class="settings-section-label">🌐 Language &amp; Routing</div>
 
     <div class="settings-field">
       <label class="settings-label" for="lang-select">Language</label>
@@ -59,12 +61,55 @@
     </div>
 
     <div class="settings-field">
-      <label class="settings-label" for="mobility-select">Accessibility</label>
+      <label class="settings-label" for="mobility-select">Routing Mode</label>
       <select id="mobility-select" class="settings-select" aria-label="Select mobility needs">
         <option value="false" selected>🚶 Standard routing</option>
-        <option value="true">♿ Step-free / accessible</option>
+        <option value="true">♿ Step-free / accessible routes only</option>
       </select>
     </div>
+
+    <div class="settings-section-label">♿ Accessibility</div>
+
+    <div class="settings-field">
+      <label class="settings-label" for="font-size-select">Text Size</label>
+      <select id="font-size-select" class="settings-select" aria-label="Select text size">
+        <option value="normal" selected>Normal</option>
+        <option value="large">Large</option>
+        <option value="xlarge">Extra Large</option>
+      </select>
+    </div>
+
+    <div class="settings-toggle-row">
+      <div>
+        <span class="settings-label">High Contrast Mode</span>
+        <span class="settings-toggle-desc">Increases text and border contrast</span>
+      </div>
+      <button class="settings-toggle" id="high-contrast-toggle" role="switch" aria-checked="false" aria-label="Toggle high contrast mode">
+        <span class="toggle-thumb"></span>
+      </button>
+    </div>
+
+    <div class="settings-toggle-row">
+      <div>
+        <span class="settings-label">Reduce Motion</span>
+        <span class="settings-toggle-desc">Disables animations and transitions</span>
+      </div>
+      <button class="settings-toggle" id="reduce-motion-toggle" role="switch" aria-checked="false" aria-label="Toggle reduced motion">
+        <span class="toggle-thumb"></span>
+      </button>
+    </div>
+
+    <div class="settings-toggle-row">
+      <div>
+        <span class="settings-label">Screen Reader Mode</span>
+        <span class="settings-toggle-desc">Adds extra descriptive announcements</span>
+      </div>
+      <button class="settings-toggle" id="screen-reader-toggle" role="switch" aria-checked="false" aria-label="Toggle screen reader mode">
+        <span class="toggle-thumb"></span>
+      </button>
+    </div>
+
+    <div class="settings-section-label">🎭 Demo</div>
 
     <button class="btn-cycle" id="next-nudge-btn" aria-label="Cycle demo scenarios">
       Cycle Demo Scenario
@@ -84,24 +129,24 @@
     <!-- PANEL: Home / Updates -->
     <section id="tab-panel-updates" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-btn-updates">
 
-      <!-- Hero nudge card -->
+      <!-- Hero nudge card — pre-filled with mock data -->
       <div class="hero-nudge-card" aria-live="polite">
         <div class="hero-nudge-header">
           <div class="nudge-status-row">
-            <span class="nudge-status-dot" id="nudge-status-dot"></span>
-            <span class="nudge-status-label" id="nudge-status-label">Checking status…</span>
+            <span class="nudge-status-dot" id="nudge-status-dot" style="background:var(--green);"></span>
+            <span class="nudge-status-label" id="nudge-status-label">SAFE TO EXIT NOW</span>
           </div>
-          <span class="nudge-timestamp" id="nudge-timestamp">—</span>
+          <span class="nudge-timestamp" id="nudge-timestamp">Live update</span>
         </div>
 
         <div id="nudge-display-wrapper" class="hero-nudge-body">
-          <p class="nudge-loading-text">Receiving live route update…</p>
+          <p class="nudge-message-text" id="nudge-main-text">Head to <strong>Gate A (100 Level)</strong> — currently at 40% capacity. Ramp 100 East is clear and step-free. Estimated exit time: <strong>8 minutes</strong>. NJ Transit trains departing every 12 min from Secaucus Junction.</p>
         </div>
 
         <div class="hero-nudge-footer">
           <div class="route-tag-group">
             <span class="route-tag-label">YOUR EXIT</span>
-            <span class="route-tag" id="route-display">—</span>
+            <span class="route-tag" id="route-display">Gate A · Ramp 100 East</span>
           </div>
           <div class="transit-mini-row">
             <span class="transit-tip-icon" aria-hidden="true">🌿</span>
@@ -110,7 +155,7 @@
                 <span class="transit-meta-label">TRANSIT</span>
                 <span id="transit-status-pill" class="transit-status-pill normal">• NORMAL</span>
               </div>
-              <p id="transit-tip-display" class="transit-tip-text">Eco-transit active.</p>
+              <p id="transit-tip-display" class="transit-tip-text">Eco-transit active. NJ Rail running on schedule — 83% less CO₂ than driving.</p>
             </div>
           </div>
         </div>

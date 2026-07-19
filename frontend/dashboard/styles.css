@@ -208,13 +208,52 @@ body {
 .dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 1.2fr;
+  grid-template-rows: auto 1fr;
   gap: 1.5rem;
-  align-items: start;
+}
+
+/* Zone monitoring — top-left */
+.zone-monitoring {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Brief feed — spans full right column height */
+.brief-feed {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  position: sticky;
+  top: 56px;
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+}
+
+.brief-feed .feed-container {
+  flex: 1;
+  max-height: none;
+}
+
+/* Transit console — bottom-left below zone grid */
+.transit-console {
+  grid-column: 1;
+  grid-row: 2;
 }
 
 @media (max-width: 1200px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .zone-monitoring,
+  .brief-feed,
+  .transit-console {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .brief-feed {
+    position: static;
+    max-height: 600px;
   }
 }
 
