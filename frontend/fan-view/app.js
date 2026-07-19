@@ -594,56 +594,41 @@ document.addEventListener("DOMContentLoaded", () => {
   // Expose so renderNudge can call it
   window.spAnnounce = maybeAnnounce;
 
-  // ── Tab navigation (coordinated sidebar + bottom tab bar) ────────
+  // ── Coordinated Dashboard & Tab Navigation ──────────────────────────
   const TABS = [
-    { key: "updates", panel: "tab-panel-updates" },
-    { key: "route",   panel: "tab-panel-route"   },
-    { key: "transit", panel: "tab-panel-transit" },
-    { key: "info",    panel: "tab-panel-info"    },
+    { key: "dashboard", panel: "tab-panel-dashboard" },
+    { key: "updates",   panel: "tab-panel-updates"   },
+    { key: "route",     panel: "tab-panel-route"     },
+    { key: "crowd",     panel: "tab-panel-crowd"     },
+    { key: "transit",   panel: "tab-panel-transit"   },
+    { key: "report",    panel: "tab-panel-report"    },
+    { key: "info",      panel: "tab-panel-info"      },
   ];
-
-  function isDesktop() {
-    return window.matchMedia('(min-width: 900px)').matches;
-  }
 
   function switchTab(activeKey) {
     TABS.forEach(({ key, panel }) => {
       const panelEl = document.getElementById(panel);
       const isActive = key === activeKey;
 
-      // Sync all buttons targeting this tab (bottom nav)
-      const btnEls = document.querySelectorAll(`[data-tab="${key}"]`);
+      // Sync active state on all buttons targeting this tab (bottom nav + sidebar items)
+      const btnEls = document.querySelectorAll(`[data-tab="${key}"], .menu-item[data-tab="${key}"]`);
       btnEls.forEach(btnEl => {
         btnEl.classList.toggle("active", isActive);
         btnEl.setAttribute("aria-selected", String(isActive));
       });
 
       if (panelEl) {
-        if (isDesktop()) {
-          // On desktop all panels are shown at once via CSS grid
-          panelEl.classList.add("is-active");
+        panelEl.classList.toggle("is-active", isActive);
+        if (isActive) {
           panelEl.removeAttribute("hidden");
         } else {
-          // Mobile: show only the active panel
-          panelEl.classList.toggle("is-active", isActive);
-          if (isActive) {
-            panelEl.removeAttribute("hidden");
-          } else {
-            panelEl.setAttribute("hidden", "");
-          }
+          panelEl.setAttribute("hidden", "");
         }
       }
     });
   }
 
-  // Re-run layout on resize so desktop/mobile switching is seamless
-  window.addEventListener("resize", () => {
-    const activeBtn = document.querySelector(".bottom-nav-btn.active");
-    const activeKey = activeBtn ? activeBtn.getAttribute("data-tab") : "updates";
-    switchTab(activeKey);
-  });
-
-  // Bind click listeners to all tab buttons
+  // Bind click listeners to all tab buttons (both bottom nav and sidebar menu items)
   document.querySelectorAll("[data-tab]").forEach(btnEl => {
     btnEl.addEventListener("click", () => {
       const targetTab = btnEl.getAttribute("data-tab");
@@ -651,6 +636,169 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // ── Live Integrated Dashboard & Gate Stats Polling ─────────────────
+  async function updateDashboardStatsAndGates() {
+    try {
+      const [zonesRes, reportsRes] = await Promise.all([
+        fetch(`${API_BASE}/api/zones`).then(r => r.ok ? r.json() : []),
+        fetch(`${API_BASE}/api/reports`).then(r => r.ok ? r.json() : [])
+      ]);
+
+      if (zonesRes && zonesRes.length > 0) {
+        // 1. Total Attendance
+        const totalAttendance = zonesRes.reduce((acc, z) => acc + z.current_count, 0);
+        const totalCapacity = zonesRes.reduce((acc, z) => acc + z.capacity, 0);
+        const attValEl = document.querySelector(".attendance-highlight .stat-box-value");
+        if (attValEl) attValEl.textContent = totalAttendance.toLocaleString();
+        const attSubEl = document.querySelector(".attendance-highlight .stat-box-sub");
+        if (attSubEl) attSubEl.textContent = `of ${totalCapacity.toLocaleString()} capacity`;
+
+        // 2. Critical Crowd Zones
+        const criticalZones = zonesRes.filter(z => z.status === "critical");
+        const critValEl = document.getElementById("stat-critical-zones-value");
+        if (critValEl) critValEl.textContent = criticalZones.length;
+        const critSubEl = document.getElementById("stat-monitored-zones-sub");
+        if (critSubEl) critSubEl.textContent = `${zonesRes.length} zones monitored`;
+
+        // 3. Populate Gate Crowd Levels widget
+        const gateListEl = document.getElementById("gates-dashboard-list");
+        if (gateListEl) {
+          // Map zone records to gate display rows
+          const displayZones = zonesRes.slice(0, 4);
+          gateListEl.innerHTML = displayZones.map(zone => {
+            const occupancyPercentage = Math.round((zone.current_count / zone.capacity) * 100);
+            const badgeClass = zone.status === "critical" ? "badge-critical" : zone.status === "watch" ? "badge-watch" : "badge-normal";
+            const statusText = zone.status === "critical" ? "Critical" : zone.status === "watch" ? "Moderate" : "Low";
+            
+            // Estimate wait time based on occupancy percentage
+            let waitTime = "3 min wait";
+            if (zone.status === "critical") {
+              waitTime = `${Math.round(20 + (occupancyPercentage - 90) * 0.5)} min wait`;
+            } else if (zone.status === "watch") {
+              waitTime = `${Math.round(7 + (occupancyPercentage - 70) * 0.4)} min wait`;
+            }
+
+            // Format zone name to shorter Gate label if possible
+            let gateName = zone.zone_name.split("–")[1] || zone.zone_name;
+            gateName = gateName.trim();
+            
+            return `
+              <div class="gate-row-item">
+                <div class="gate-meta">
+                  <span class="gate-code-name">${escapeHtml(gateName)}</span>
+                  <span class="gate-occupancy-fraction">${zone.current_count.toLocaleString()} / ${zone.capacity.toLocaleString()}</span>
+                </div>
+                <div class="gate-status-group">
+                  <span class="gate-badge ${badgeClass}">${statusText}</span>
+                  <span class="gate-wait-time">${waitTime}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 4. Render Crowd Intelligence tab panel cards
+        const crowdGridEl = document.getElementById("crowd-zones-grid");
+        if (crowdGridEl) {
+          crowdGridEl.innerHTML = zonesRes.map(zone => {
+            const pct = Math.round((zone.current_count / zone.capacity) * 100);
+            return `
+              <div class="stat-box-card" style="gap: 0.5rem;">
+                <div class="stat-box-header">
+                  <span class="gate-code-name" style="font-size: 0.9rem;">${escapeHtml(zone.zone_name)}</span>
+                  <span class="gate-badge ${zone.status === "critical" ? "badge-critical" : zone.status === "watch" ? "badge-watch" : "badge-normal"}">${zone.status.toUpperCase()}</span>
+                </div>
+                <div class="stat-box-value" style="font-size: 1.5rem;">${pct}%</div>
+                <div class="stat-box-title" style="font-size: 0.75rem; color: var(--ink-muted);">${zone.current_count.toLocaleString()} / ${zone.capacity.toLocaleString()}</div>
+                <div style="height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-top: 0.25rem;">
+                  <div style="height: 100%; width: ${Math.min(pct, 100)}%; background: ${zone.status === 'critical' ? 'var(--red)' : zone.status === 'watch' ? 'var(--amber)' : 'var(--green)'};"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 5. Active Incidents display
+      const incidentCount = reportsRes ? reportsRes.length : 0;
+      const activeIncidents = incidentCount + (zonesRes ? zonesRes.filter(z => z.status !== "normal").length : 0);
+      
+      const incidentValEl = document.getElementById("stat-incidents-value");
+      if (incidentValEl) incidentValEl.textContent = activeIncidents;
+      const incidentSubEl = document.getElementById("stat-incidents-sub");
+      if (incidentSubEl) incidentSubEl.textContent = `${incidentCount} critical reports`;
+
+      const topPillEl = document.getElementById("alert-incident-pill");
+      const countLabelEl = document.getElementById("alert-count-label");
+      if (topPillEl && countLabelEl) {
+        if (activeIncidents > 0) {
+          countLabelEl.textContent = `${activeIncidents} Active Incidents`;
+          topPillEl.style.display = "flex";
+        } else {
+          topPillEl.style.display = "none";
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to load dashboard dynamic stats:", error);
+    }
+  }
+
+  // ── Incident Form submission handler ────────────────────────────────
+  const incidentForm = document.getElementById("incident-form");
+  const reportFeedback = document.getElementById("report-submission-feedback");
+
+  if (incidentForm) {
+    incidentForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const rawText = document.getElementById("raw_text").value.trim();
+      if (!rawText) return;
+
+      const submitBtn = document.getElementById("submit-report-btn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Dispatching...";
+      reportFeedback.innerHTML = "";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ raw_text: rawText })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        reportFeedback.innerHTML = `
+          <div class="triage-success-display">
+            <div class="triage-success-header">
+              <span>✓ Dispatched Successfully</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--ink-secondary);">${escapeHtml(data.structured_summary)}</p>
+            <div class="triage-details-list">
+              <span class="triage-badge" style="color: ${data.severity === 'critical' ? 'var(--red)' : data.severity === 'high' ? 'var(--amber)' : 'var(--green)'}">${data.severity}</span>
+              <span class="triage-badge">${data.category}</span>
+              <span class="triage-badge">${data.detected_language}</span>
+            </div>
+          </div>
+        `;
+        document.getElementById("raw_text").value = "";
+        updateDashboardStatsAndGates();
+      } catch (err) {
+        reportFeedback.innerHTML = `<p style="color: var(--red); font-size: 0.85rem; margin-top: 1rem;">✕ Submission failed: ${escapeHtml(err.message)}</p>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Dispatch Report ➔";
+      }
+    });
+  }
+
   // Initialise layout for whichever screen size we start on
-  switchTab("updates");
+  switchTab("dashboard");
+  updateDashboardStatsAndGates();
+
+  // Poll fetchNudge & dashboard statistics every 3 seconds
+  pollingIntervalId = setInterval(() => {
+    loadScenario(currentScenarioIndex, true);
+    updateDashboardStatsAndGates();
+  }, 3000);
 });
+
