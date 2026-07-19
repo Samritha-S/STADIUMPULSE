@@ -151,6 +151,9 @@ The supported language set (`en`, `es`, `fr`, `pt`, `de`, `ar`, `it`, `ja`, `ko`
 **No authentication on the API**
 All three endpoints are unauthenticated GET requests. For a hackathon demo this is fine; a production control-room system would require authentication and role-based access — particularly for the briefs feed, which contains operational security-sensitive zone status information.
 
+**Session identity is client-side only (deliberate scope decision)**
+The `/` entry screen collects a name and role and stores them in `sessionStorage` to provide a "signed-in" experience across portals (name + role badge, log-out action, portal switching nav). This is a demo identity layer, not real authentication — `sessionStorage` is browser-local, never sent to the server, and is cleared on tab close. A production deployment would require real server-side authentication: OAuth 2.0, session tokens with CSRF protection, or an identity platform (Google Identity, Auth0, etc.). This scope boundary is intentional for a hackathon build and is not a gap.
+
 **Crowd counts are not deduplicated or smoothed**
 The synthetic data already includes noise, and the linear regression operates on raw counts. Real sensor feeds have duplicate detections, dropout periods, and sensor failures that require smoothing, gap-filling, and outlier rejection before a count series is suitable for forecasting.
 
@@ -168,6 +171,8 @@ cp .env.example .env   # then add GEMINI_API_KEY
 uvicorn backend.server:app --reload --port 8088
 python -m unittest discover -s tests -v   # 59 tests, all mocked
 ```
+
+Once running, navigate to `http://localhost:8088/` to reach the **entry screen** — enter your name and select a role (Fan / Ops Staff / Volunteer) to be routed to the matching portal. Each portal shows a persistent top nav bar with your session identity, links to switch between portals, and a log-out action. Navigating directly to `/admin`, `/fan`, or `/volunteer` without going through the entry screen works fine — the nav bar shows a "Guest" state and prompts you to enter details.
 
 ---
 

@@ -361,4 +361,37 @@ document.addEventListener("DOMContentLoaded", () => {
       loadScenario(currentScenarioIndex);
     });
   }
+
+  // ── Bottom tab navigation ────────────────────────────────────────
+  // Tab IDs and their matching panel IDs.
+  // Tickets stays as a static info panel (no real ticketing system — see README).
+  const TABS = [
+    { btn: "tab-btn-updates",  panel: "tab-panel-updates"  },
+    { btn: "tab-btn-map",      panel: "tab-panel-map"      },
+    { btn: "tab-btn-tickets",  panel: "tab-panel-tickets"  },
+  ];
+
+  function switchTab(activeKey) {
+    TABS.forEach(({ btn, panel }) => {
+      const btnEl   = document.getElementById(btn);
+      const panelEl = document.getElementById(panel);
+      const isActive = btn === activeKey;
+
+      if (btnEl) {
+        btnEl.classList.toggle("active", isActive);
+        btnEl.setAttribute("aria-selected", String(isActive));
+      }
+      if (panelEl) {
+        panelEl.style.display = isActive ? "" : "none";
+      }
+    });
+  }
+
+  TABS.forEach(({ btn }) => {
+    const btnEl = document.getElementById(btn);
+    if (btnEl) {
+      btnEl.addEventListener("click", () => switchTab(btn));
+    }
+  });
 });
+

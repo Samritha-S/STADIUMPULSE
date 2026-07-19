@@ -90,7 +90,8 @@ def get_landing():
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StadiumPulse Portal</title>
+  <title>StadiumPulse — Enter Portal</title>
+  <meta name="description" content="StadiumPulse crowd-safety intelligence for FIFA World Cup 2026. Enter your name and role to access your portal.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -99,181 +100,180 @@ def get_landing():
       --bg-void: #0A0A0B;
       --surface: #16100F;
       --surface-raised: #211614;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border: rgba(255,255,255,0.08);
       --ink: #F2E9E4;
       --ink-muted: #8A7A75;
-      
       --maroon-primary: #7A1F2B;
-      --maroon-glow: rgba(122, 31, 43, 0.15);
+      --maroon-glow: rgba(122,31,43,0.18);
       --pulse-normal: #4A7856;
-      
-      --font-header: 'Space Grotesk', system-ui, sans-serif;
-      --font-body: 'Inter', system-ui, sans-serif;
+      --font-header: "Space Grotesk", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
     }
-    
+    *, *::before, *::after { box-sizing: border-box; }
     body {
-      background-color: var(--bg-void);
+      background: var(--bg-void);
       color: var(--ink);
       font-family: var(--font-body);
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      padding: 2rem 1.25rem;
       margin: 0;
-      padding: 2rem 1.5rem;
-      box-sizing: border-box;
     }
-    
-    .container {
-      background-color: var(--surface);
+    .card {
+      background: var(--surface);
       border: 1px solid var(--border);
       border-top: 4px solid var(--maroon-primary);
-      border-radius: 12px;
-      padding: 3rem 2.5rem;
-      max-width: 680px;
+      border-radius: 14px;
+      padding: 2.75rem 2.25rem;
       width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      max-width: 440px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.65);
       position: relative;
     }
-
-    /* Signature Accent Glow */
-    .container::after {
-      content: '';
+    .card::after {
+      content: "";
       position: absolute;
-      top: -4px;
-      left: 10%;
-      right: 10%;
-      height: 4px;
+      top: -4px; left: 12%; right: 12%; height: 4px;
       background: var(--maroon-primary);
-      filter: blur(8px);
-      opacity: 0.6;
+      filter: blur(10px);
+      opacity: 0.55;
     }
-    
-    h1 {
+    .brand {
       font-family: var(--font-header);
-      font-size: 2.5rem;
+      font-size: 2.25rem;
       font-weight: 700;
-      margin: 0 0 0.5rem 0;
       letter-spacing: -0.03em;
-      color: var(--ink);
+      margin: 0 0 0.375rem;
+      text-align: center;
     }
-    
-    .positioning-copy {
-      color: var(--ink-muted);
-      font-size: 1rem;
-      max-width: 480px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.5;
-    }
-    
-    .portal-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 1.25rem;
-    }
-
-    @media (max-width: 768px) {
-      .portal-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    
-    .portal-card {
-      background-color: var(--surface-raised);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      text-align: left;
-      transition: all 0.22s ease-in-out;
-      text-decoration: none;
-      color: inherit;
-    }
-    
-    .portal-card:hover {
-      border-color: var(--maroon-primary);
-      box-shadow: 0 0 15px var(--maroon-glow);
-      transform: translateY(-2px);
-    }
-
-    .portal-card:focus-visible {
-      outline: 2px solid var(--pulse-normal);
-      outline-offset: 2px;
-    }
-    
-    .card-title {
-      font-family: var(--font-header);
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin: 0 0 0.5rem 0;
-      color: var(--ink);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-title::after {
-      content: '→';
-      font-weight: 500;
-      opacity: 0.5;
-      transition: transform 0.2s;
-    }
-
-    .portal-card:hover .card-title::after {
-      transform: translateX(3px);
-      opacity: 0.9;
-      color: var(--maroon-primary);
-    }
-    
-    .card-desc {
+    .tagline {
       font-size: 0.82rem;
       color: var(--ink-muted);
-      line-height: 1.45;
-      margin: 0;
+      text-align: center;
+      line-height: 1.5;
+      margin: 0 0 2rem;
     }
-    
-    .card-badge {
-      display: inline-block;
-      font-size: 0.65rem;
+    .form { display: flex; flex-direction: column; gap: 1.1rem; }
+    .group { display: flex; flex-direction: column; gap: 0.4rem; }
+    label {
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--ink-muted);
-      margin-bottom: 0.75rem;
-      opacity: 0.7;
     }
+    input, select {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      padding: 0.72rem 0.9rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238A7A75' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      padding-right: 2.25rem;
+    }
+    input:focus, select:focus {
+      border-color: var(--maroon-primary);
+      box-shadow: 0 0 0 3px var(--maroon-glow);
+    }
+    .submit {
+      background: var(--maroon-primary);
+      border: none;
+      border-radius: 7px;
+      color: var(--ink);
+      font-family: var(--font-header);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.85rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      width: 100%;
+      transition: filter 0.18s, box-shadow 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .submit:hover { filter: brightness(1.18); box-shadow: 0 4px 16px rgba(122,31,43,0.4); }
+    .submit:focus-visible { outline: 2px solid var(--pulse-normal); outline-offset: 3px; }
+    .guest-note {
+      margin-top: 1.5rem;
+      font-size: 0.73rem;
+      color: var(--ink-muted);
+      text-align: center;
+      line-height: 1.45;
+    }
+    .guest-note a { color: inherit; text-decoration: underline; opacity: 0.7; }
+    .guest-note a:hover { opacity: 1; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>StadiumPulse</h1>
-    <p class="positioning-copy">Real-time crowd flow forecasting, multi-lingual AI-assisted safety routing (supporting 10 languages), localized eco-transit guidance, and volunteer incident triage for MetLife Stadium — FIFA World Cup 2026 Final, July 19.</p>
-    
-    <nav class="portal-grid" aria-label="Portal access">
-      <a href="/admin" class="portal-card" aria-label="Access Ops Center Dashboard">
-        <span class="card-badge">CONTROL ROOM ONLY</span>
-        <h2 class="card-title">Ops Center</h2>
-        <p class="card-desc">High-density visual monitor wall showing real-time zone congestion, predictive flow analytics, and GenAI brief alerts.</p>
-      </a>
-      
-      <a href="/fan" class="portal-card" aria-label="Access Fan Companion Mobile View">
-        <span class="card-badge">SPECTATOR CHANNEL</span>
-        <h2 class="card-title">Fan Companion</h2>
-        <p class="card-desc">Personalized multilingual companion view providing step-free routing nudges, optimized egress pathways, and live directions.</p>
-      </a>
+  <div class="card" role="main">
+    <h1 class="brand">StadiumPulse</h1>
+    <p class="tagline">MetLife Stadium · FIFA World Cup 2026 Final · July 19<br>Enter your name and role to access your portal.</p>
 
-      <a href="/volunteer" class="portal-card" aria-label="Access Volunteer Incident Triage Portal">
-        <span class="card-badge">FIELD VOLUNTEERS</span>
-        <h2 class="card-title">Volunteer Portal</h2>
-        <p class="card-desc">Submit raw free-text incident reports from the field for automated classification, tagging, and control-room dispatch.</p>
-      </a>
-    </nav>
+    <form class="form" id="session-form" novalidate>
+      <div class="group">
+        <label for="sp-name">Your Name</label>
+        <input type="text" id="sp-name" name="name" required
+               placeholder="e.g. Alex Smith" autocomplete="name"
+               aria-required="true">
+      </div>
+
+      <div class="group">
+        <label for="sp-role">Operational Role</label>
+        <select id="sp-role" name="role" required aria-required="true">
+          <option value="fan">Fan — Companion View</option>
+          <option value="ops">Ops Staff — Control Room</option>
+          <option value="volunteer">Volunteer — Field Responder</option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit" id="enter-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/>
+        </svg>
+        Enter Portal
+      </button>
+    </form>
+
+    <p class="guest-note">
+      Demo only — no backend authentication.<br>
+      Direct portal links: <a href="/admin">/admin</a> · <a href="/fan">/fan</a> · <a href="/volunteer">/volunteer</a>
+    </p>
   </div>
+
+  <script>
+    (function () {
+      var form = document.getElementById("session-form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = document.getElementById("sp-name").value.trim();
+        var role = document.getElementById("sp-role").value;
+        if (!name) {
+          document.getElementById("sp-name").focus();
+          return;
+        }
+        sessionStorage.setItem("stadiumpulse_name", name);
+        sessionStorage.setItem("stadiumpulse_role", role);
+        var dest = role === "ops" ? "/admin" : role === "volunteer" ? "/volunteer" : "/fan";
+        window.location.href = dest;
+      });
+    })();
+  </script>
 </body>
 </html>"""
 

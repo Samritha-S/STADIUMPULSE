@@ -43,42 +43,64 @@
       <!-- Main nudge + map content -->
       <div class="phone-content">
 
-        <!-- Live nudge region — aria-live keeps screen-reader announcements intact -->
-        <section class="nudge-section" aria-labelledby="notification-title">
-          <h3 id="notification-title" class="visually-hidden">Live Safety and Traffic Guidance</h3>
-          <div class="nudge-box-wrapper" id="nudge-display-wrapper" aria-live="polite">
-            <!-- Rendered dynamically by app.js -->
-            <div class="nudge-loading">Receiving route updates…</div>
-          </div>
-        </section>
+        <!-- TAB: Updates (default/active) -->
+        <div id="tab-panel-updates" role="tabpanel" aria-labelledby="tab-btn-updates">
+          <!-- Live nudge region — aria-live keeps screen-reader announcements intact -->
+          <section class="nudge-section" aria-labelledby="notification-title">
+            <h3 id="notification-title" class="visually-hidden">Live Safety and Traffic Guidance</h3>
+            <div class="nudge-box-wrapper" id="nudge-display-wrapper" aria-live="polite">
+              <!-- Rendered dynamically by app.js -->
+              <div class="nudge-loading">Receiving route updates…</div>
+            </div>
+          </section>
 
-        <!-- Promoted Transit and Route Tip Section -->
-        <section class="transit-section" id="transit-display-wrapper" aria-label="Route and Transit Information" style="display: none;">
-          <!-- Dynamically generated card will be injected here by app.js -->
-        </section>
+          <!-- Promoted Transit and Route Tip Section -->
+          <section class="transit-section" id="transit-display-wrapper" aria-label="Route and Transit Information" style="display: none;">
+            <!-- Dynamically generated card will be injected here by app.js -->
+          </section>
+        </div><!-- /#tab-panel-updates -->
 
-        <!-- Dynamic SVG Schematic Map -->
-        <section class="map-placeholder" aria-label="Interactive Stadium Map">
-          <div class="map-grid" id="map-grid-container">
-            <!-- Dynamically populated SVG will be injected here -->
-          </div>
-          <p class="map-caption" id="map-caption-text">Awaiting route update…</p>
-        </section>
+        <!-- TAB: Map -->
+        <div id="tab-panel-map" role="tabpanel" aria-labelledby="tab-btn-map" style="display:none;">
+          <!-- Dynamic SVG Schematic Map -->
+          <section class="map-placeholder" aria-label="Interactive Stadium Map">
+            <div class="map-grid" id="map-grid-container">
+              <!-- Dynamically populated SVG will be injected here -->
+            </div>
+            <p class="map-caption" id="map-caption-text">Awaiting route update…</p>
+          </section>
+        </div><!-- /#tab-panel-map -->
+
+        <!-- TAB: Tickets — static info panel (no ticketing system in scope for this demo) -->
+        <div id="tab-panel-tickets" role="tabpanel" aria-labelledby="tab-btn-tickets" style="display:none;">
+          <section class="tickets-info-panel" aria-label="Ticketing Information">
+            <div class="tickets-icon" aria-hidden="true">🎟️</div>
+            <h3 class="tickets-title">Your Tickets</h3>
+            <p class="tickets-body">Match tickets for the FIFA World Cup 2026 Final are managed exclusively through the official FIFA ticketing platform.</p>
+            <a href="https://www.fifa.com/tickets" target="_blank" rel="noopener noreferrer" class="tickets-link">fifa.com/tickets ↗</a>
+            <p class="tickets-note">StadiumPulse handles crowd routing and safety guidance — ticket management is out of scope for this demo.</p>
+          </section>
+        </div><!-- /#tab-panel-tickets -->
 
       </div><!-- /.phone-content -->
 
-      <!-- Bottom nav -->
+      <!-- Bottom nav —
+           Tab switching is handled by tab-nav.js logic in app.js:
+           UPDATES: default view; MAP: shows SVG wayfinding; TICKETS: static info panel -->
       <footer class="phone-footer">
-        <nav class="mobile-nav" aria-label="App Navigation">
-          <button class="nav-item active" aria-current="page">
+        <nav class="mobile-nav" aria-label="App Navigation" role="tablist">
+          <button class="nav-item active" id="tab-btn-updates"
+                  role="tab" aria-selected="true" aria-controls="tab-panel-updates">
             <span class="nav-icon" aria-hidden="true">📢</span>
             <span class="nav-text">Updates</span>
           </button>
-          <button class="nav-item">
+          <button class="nav-item" id="tab-btn-map"
+                  role="tab" aria-selected="false" aria-controls="tab-panel-map">
             <span class="nav-icon" aria-hidden="true">🗺️</span>
             <span class="nav-text">Map</span>
           </button>
-          <button class="nav-item">
+          <button class="nav-item" id="tab-btn-tickets"
+                  role="tab" aria-selected="false" aria-controls="tab-panel-tickets">
             <span class="nav-icon" aria-hidden="true">🎟️</span>
             <span class="nav-text">Tickets</span>
           </button>
@@ -136,5 +158,6 @@
   </main><!-- /.phone-wrapper -->
 
   <script src="app.js"></script>
+  <script src="session-nav.js"></script>
 </body>
 </html>
