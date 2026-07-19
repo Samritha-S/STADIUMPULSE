@@ -17,7 +17,7 @@ logger = logging.getLogger("stadiumpulse.reasoning")
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 
 REPORT_REQUIRED_KEYS = {
     "detected_language",
@@ -163,7 +163,9 @@ def _call_gemini(
         from dotenv import load_dotenv
         load_dotenv()
         _here = os.path.dirname(__file__)
+        load_dotenv(os.path.join(_here, "../../stadiumpulse/.env"))
         load_dotenv(os.path.join(_here, "../../.env"))
+        load_dotenv("stadiumpulse/.env")
     except Exception:
         pass
 

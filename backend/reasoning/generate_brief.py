@@ -43,7 +43,7 @@ logger = logging.getLogger("stadiumpulse.reasoning")
 # NOTE: Verify model name and pricing at https://ai.google.dev/pricing before
 # any post-hackathon production deployment — Gemini model names evolve quickly.
 # ---------------------------------------------------------------------------
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 
 # Required keys per ControlRoomBrief schema
 BRIEF_REQUIRED_KEYS = {
@@ -251,8 +251,10 @@ def _call_gemini(
         from dotenv import load_dotenv
         load_dotenv()
         _here = os.path.dirname(__file__)
+        load_dotenv(os.path.join(_here, "../../stadiumpulse/.env"))
         load_dotenv(os.path.join(_here, "../../.env"))
         load_dotenv(os.path.join(_here, "../../../.env"))
+        load_dotenv("stadiumpulse/.env")
     except Exception:
         pass
 

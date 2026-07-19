@@ -25,8 +25,10 @@ from dotenv import load_dotenv
 # Robustly load .env from multiple potential locations (CWD, ancestors, and relative paths)
 load_dotenv()
 _here = os.path.dirname(__file__)
+load_dotenv(dotenv_path=os.path.join(_here, "../stadiumpulse/.env"))
 load_dotenv(dotenv_path=os.path.join(_here, "../.env"))
 load_dotenv(dotenv_path=os.path.join(_here, "../../.env"))
+load_dotenv(dotenv_path=os.path.join(_here, "stadiumpulse/.env"))
 
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
