@@ -66,82 +66,47 @@ body {
 }
 
 /* ── Header ─────────────────────────────────────────────────── */
-.app-header {
+/* ── Sub Header Bar ─────────────────────────────────────────── */
+.dashboard-sub-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.875rem 2rem;
-  background: rgba(13, 17, 23, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  padding: 0.6rem 2rem;
+  background: rgba(18, 16, 15, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   position: sticky;
-  top: 0;
+  top: var(--sp-nav-h, 44px);
   z-index: 100;
 }
 
-.logo-container {
+.sub-header-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
-/* Dot + radar-sweep pulse — the one deliberate motion moment */
-.logo-pulse {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  flex-shrink: 0;
+.venue-subtitle {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
 }
 
-.logo-pulse::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--maroon-primary);
-  border-radius: 50%;
+.sub-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-/* Radar ring — fires once on .pulse-fire class, added by JS per poll cycle */
-.logo-pulse::after {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  border: 1.5px solid var(--maroon-primary);
-  opacity: 0;
-  transform: scale(0.4);
-  animation: radar-sweep 3s var(--ease-out) infinite;
+.btn-refresh {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 5px;
 }
 
-@keyframes radar-sweep {
-  0%   { transform: scale(0.4); opacity: 0.8; }
-  70%  { transform: scale(2.2); opacity: 0; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-/* Reduced motion: replace sweep with a gentle static blink */
-@media (prefers-reduced-motion: reduce) {
-  .logo-pulse::after {
-    animation: none;
-    opacity: 0;
-  }
-  .logo-pulse::before {
-    animation: pulse-blink 3s ease-in-out infinite;
-  }
-  @keyframes pulse-blink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-  }
-}
-
-.app-title {
-  font-family: var(--font-header);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
 
 /* ── Badges ─────────────────────────────────────────────────── */
 .badge {
@@ -292,8 +257,13 @@ body {
 }
 
 @media (max-width: 600px) {
-  .app-header {
-    padding: 0.75rem 1rem;
+  .dashboard-sub-header {
+    padding: 0.5rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .venue-subtitle {
+    display: none; /* too narrow on small screens */
   }
   .dashboard-layout {
     padding: 0 1rem 1.5rem;

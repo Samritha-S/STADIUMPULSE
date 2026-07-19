@@ -88,17 +88,13 @@ body.mobile-body {
 }
 
 .sidebar-branding {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.sidebar-branding h2 {
-  font-family: var(--font-header);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--ink);
-}
 
 .sidebar-nav {
   display: flex;
@@ -695,11 +691,11 @@ body.mobile-body {
   .fan-sidebar {
     display: none;
   }
+  /* Mobile header — portal label only, sits below session-nav bar */
   .mobile-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 0.6rem 1rem;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
   }
@@ -712,7 +708,7 @@ body.mobile-body {
     border-right: none;
     border-bottom: none;
   }
-  
+
   /* Mobile bottom navigation */
   .mobile-tab-bar {
     display: block;

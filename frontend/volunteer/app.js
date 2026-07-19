@@ -1,8 +1,6 @@
 // Volunteer Desk App Logic
 document.addEventListener("DOMContentLoaded", () => {
-  // Update device clock
-  updateClock();
-  setInterval(updateClock, 60000);
+  // (device-time clock removed — was part of the old phone status bar chrome)
 
   const form = document.getElementById("incident-form");
   const textarea = document.getElementById("raw_text");

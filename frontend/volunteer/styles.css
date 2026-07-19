@@ -1,5 +1,7 @@
 /* ============================================================
-   StadiumPulse — Volunteer Incident Portal styles
+   StadiumPulse — Volunteer Incident Portal
+   Design system: same tokens as /admin and /fan
+   Responsive full-screen layout — no phone-frame chrome.
    ============================================================ */
 
 :root {
@@ -21,6 +23,13 @@
   --pulse-watch:     #C08A2E;
   --pulse-critical:  #B8323F;
 
+  --normal-fill:     rgba(74, 120, 86,  0.12);
+  --normal-border:   rgba(74, 120, 86,  0.25);
+  --watch-fill:      rgba(192, 138, 46, 0.12);
+  --watch-border:    rgba(192, 138, 46, 0.25);
+  --critical-fill:   rgba(184, 50, 63,  0.08);
+  --critical-border: rgba(184, 50, 63,  0.18);
+
   --font-header: 'Space Grotesk', system-ui, sans-serif;
   --font-body:   'Inter', system-ui, sans-serif;
   --font-data:   'JetBrains Mono', 'Courier New', monospace;
@@ -28,149 +37,100 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reset */
+/* ── Reset ───────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body.mobile-body {
+/* ── Page background ─────────────────────────────────────────── */
+body.volunteer-body {
   background-color: var(--bg-void);
   color: var(--ink);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  padding: 1.5rem;
-  overflow-x: hidden;
 }
 
-/* Phone Layout container */
-.phone-wrapper {
+/* ── Sub-header: portal context bar ─────────────────────────── */
+/* Sits directly below the injected session-nav bar.
+   Does NOT repeat "StadiumPulse" — session-nav handles that. */
+.volunteer-sub-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  width: 100%;
-}
-
-.phone-frame {
-  width: 375px;
-  height: 740px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 40px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 10px rgba(255, 255, 255, 0.03);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-/* Header */
-.phone-header {
-  background: var(--surface-raised);
+  gap: 1rem;
+  padding: 0.6rem 2rem;
+  background: rgba(18, 16, 15, 0.95);
   border-bottom: 1px solid var(--border);
-  padding: 0.75rem 1.25rem 0.5rem;
-  flex-shrink: 0;
+  position: sticky;
+  top: var(--sp-nav-h, 44px);
+  z-index: 100;
 }
 
-.phone-status-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
-  color: var(--ink-muted);
-  font-family: var(--font-data);
-  margin-bottom: 0.5rem;
-}
-
-.app-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.app-branding {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.pulse-indicator {
-  width: 8px;
-  height: 8px;
-  background-color: var(--maroon-primary);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--maroon-primary);
-  animation: pulse-glow 2s infinite ease-in-out;
-}
-
-@keyframes pulse-glow {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(122, 31, 43, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(122, 31, 43, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(122, 31, 43, 0); }
-}
-
-.app-branding h2 {
-  font-family: var(--font-header);
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-
-.app-view-label {
-  font-size: 0.68rem;
+.view-tag-pill {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--maroon-primary);
-  background: rgba(122, 31, 43, 0.12);
-  padding: 0.2rem 0.5rem;
+  letter-spacing: 0.07em;
+  color: var(--accent-soft);
+  background: rgba(122, 31, 43, 0.15);
+  border: 1px solid rgba(122, 31, 43, 0.25);
   border-radius: 4px;
+  padding: 0.15rem 0.5rem;
 }
 
-/* Phone Content area */
-.phone-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem 1.25rem;
+.venue-label {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+}
+
+/* ── Responsive page layout ──────────────────────────────────── */
+.volunteer-layout {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  min-height: calc(100vh - var(--sp-nav-h, 44px) - 2.5rem);
+}
+
+.volunteer-container {
+  width: 100%;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.75rem;
 }
 
-/* Scrollbar styling */
-.phone-content::-webkit-scrollbar {
-  width: 4px;
-}
-.phone-content::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
-
-.portal-intro h3 {
+/* ── Portal intro ────────────────────────────────────────────── */
+.portal-title {
   font-family: var(--font-header);
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
 }
 
 .portal-intro p {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: var(--ink-muted);
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
-/* Form controls */
+/* ── Form controls ───────────────────────────────────────────── */
 .incident-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -180,7 +140,7 @@ body.mobile-body {
 }
 
 .input-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -193,11 +153,12 @@ textarea {
   border-radius: 8px;
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 0.88rem;
-  padding: 0.75rem;
+  font-size: 0.9rem;
+  padding: 0.85rem;
   resize: none;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.55;
 }
 
 textarea:focus {
@@ -206,27 +167,26 @@ textarea:focus {
 }
 
 .input-help {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--ink-muted);
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .char-counter {
   font-family: var(--font-data);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--ink-dim);
   text-align: right;
-  margin-top: -0.2rem;
 }
 
 .error-banner {
-  background: rgba(184, 50, 63, 0.12);
+  background: rgba(184, 50, 63, 0.10);
   border: 1px solid rgba(184, 50, 63, 0.25);
   color: var(--pulse-critical);
   border-radius: 6px;
-  padding: 0.65rem 0.85rem;
-  font-size: 0.78rem;
-  line-height: 1.4;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .submit-btn {
@@ -237,24 +197,24 @@ textarea:focus {
   font-family: var(--font-header);
   font-size: 0.95rem;
   font-weight: 600;
-  padding: 0.9rem;
+  padding: 0.9rem 1.25rem;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
   transition: filter 0.2s, transform 0.15s;
+  letter-spacing: -0.01em;
 }
 
-.submit-btn:hover {
-  filter: brightness(1.15);
+.submit-btn:hover   { filter: brightness(1.15); }
+.submit-btn:active  { transform: scale(0.98); }
+.submit-btn:focus-visible {
+  outline: 2px solid var(--pulse-normal);
+  outline-offset: 3px;
 }
 
-.submit-btn:active {
-  transform: scale(0.98);
-}
-
-/* Loader */
+/* ── Loader ──────────────────────────────────────────────────── */
 .loader {
   width: 14px;
   height: 14px;
@@ -265,28 +225,29 @@ textarea:focus {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
+  0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Confirmation state */
+/* ── Confirmation panel ──────────────────────────────────────── */
 .confirmation-panel {
-  background: var(--surface-raised);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem 1.25rem;
+  border-top: 3px solid var(--pulse-normal);
+  border-radius: 14px;
+  padding: 2rem 1.75rem;
   text-align: center;
   animation: slide-up 0.3s var(--ease-out);
 }
 
 @keyframes slide-up {
-  0% { opacity: 0; transform: translateY(10px); }
+  0%   { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
 .success-icon {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   background: rgba(74, 120, 86, 0.15);
   border: 1px solid var(--pulse-normal);
   color: var(--pulse-normal);
@@ -294,31 +255,33 @@ textarea:focus {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  margin: 0 auto 0.75rem;
+  margin: 0 auto 1rem;
 }
 
 .confirmation-panel h4 {
   font-family: var(--font-header);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--ink);
   margin-bottom: 0.5rem;
 }
 
 .confirmation-panel p {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--ink-muted);
-  line-height: 1.45;
-  margin-bottom: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
 }
 
+/* ── Triage tags ─────────────────────────────────────────────── */
 .triage-tags {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .tag {
@@ -327,7 +290,7 @@ textarea:focus {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 0.2rem 0.55rem;
+  padding: 0.22rem 0.55rem;
   border-radius: 4px;
 }
 
@@ -337,13 +300,10 @@ textarea:focus {
   border: 1px solid var(--border);
 }
 
-.tag-severity {
-  border: 1px solid transparent;
-}
+.tag-severity { border: 1px solid transparent; }
 
-/* Urgency pill mappings */
 .severity-low {
-  background: rgba(74, 120, 86,  0.12);
+  background: rgba(74, 120, 86, 0.12);
   color: var(--pulse-normal);
   border-color: rgba(74, 120, 86, 0.25);
 }
@@ -353,9 +313,9 @@ textarea:focus {
   border-color: rgba(192, 138, 46, 0.25);
 }
 .severity-high {
-  background: rgba(184, 50, 63,  0.1);
+  background: rgba(184, 50, 63, 0.10);
   color: var(--pulse-critical);
-  border-color: rgba(184, 50, 63,  0.2);
+  border-color: rgba(184, 50, 63, 0.20);
 }
 .severity-critical {
   background: var(--pulse-critical);
@@ -377,10 +337,10 @@ textarea:focus {
   font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
-  padding: 0.65rem 1.25rem;
+  padding: 0.65rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s;
 }
 
 .reset-btn:hover {
@@ -388,43 +348,23 @@ textarea:focus {
   color: var(--ink);
 }
 
-/* Footer Navigation */
-.phone-footer {
-  background: var(--surface-raised);
-  border-top: 1px solid var(--border);
-  padding: 0.5rem 1.25rem;
-  flex-shrink: 0;
-}
-
-.mobile-nav {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  text-decoration: none;
-  background: none;
-  border: none;
-  color: var(--ink-muted);
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 0.25rem 0.5rem;
-}
-
-.nav-item:hover, .nav-item.active {
-  color: var(--ink);
-}
-
-.nav-icon {
-  font-size: 1.1rem;
-}
-
-.nav-text {
-  font-size: 0.62rem;
-  font-weight: 500;
+/* ── Responsive tweaks ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .volunteer-sub-header {
+    padding: 0.5rem 1rem;
+  }
+  .volunteer-layout {
+    padding: 1.25rem 1rem;
+  }
+  .incident-form {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+  .confirmation-panel {
+    padding: 1.5rem 1.25rem;
+    border-radius: 10px;
+  }
+  .venue-label {
+    display: none; /* too narrow; portal label is enough */
+  }
 }
