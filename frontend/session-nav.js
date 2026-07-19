@@ -45,6 +45,9 @@
     const displayName = isGuest ? "Guest" : name;
     const displayRole = isGuest ? "" : (ROLE_LABELS[role] || role);
 
+    // Add class to document element for global styling hooks
+    document.documentElement.classList.add("has-session-nav");
+
     // ── Styles ────────────────────────────────────────────────────────────────
     const style = document.createElement("style");
     style.textContent = `
@@ -53,7 +56,18 @@
       /* push page content down by nav height */
       body { padding-top: var(--sp-nav-h) !important; }
 
-      /* Fan view phone-wrapper needs special handling */
+      /* Offset sticky application headers */
+      .app-header {
+        top: var(--sp-nav-h) !important;
+      }
+
+      /* Adjust centered bodies to layout below the nav bar */
+      html.has-session-nav body.mobile-body {
+        padding-top: calc(var(--sp-nav-h) + 1.5rem) !important;
+        align-items: flex-start !important;
+      }
+
+      /* Fan view wrapper needs special handling */
       .phone-wrapper { margin-top: 0 !important; }
 
       #sp-session-nav {

@@ -13,108 +13,121 @@
 </head>
 <body class="mobile-body">
 
-  <!-- Phone + demo panel wrapper -->
-  <main class="phone-wrapper">
-    <div class="phone-frame">
+  <div class="fan-app-layout">
+    <!-- Desktop Left Sidebar -->
+    <aside class="fan-sidebar" aria-label="Sidebar Navigation">
+      <div class="sidebar-branding">
+        <span class="pulse-indicator" aria-hidden="true"></span>
+        <h2>StadiumPulse</h2>
+        <span class="view-tag">Fan Companion</span>
+      </div>
+      <nav class="sidebar-nav" role="tablist" aria-label="Desktop Navigation">
+        <button class="nav-item active" data-tab="updates" role="tab" aria-selected="true" aria-controls="tab-panel-updates">
+          <span class="nav-icon" aria-hidden="true">📢</span>
+          <span class="nav-text">Live Updates</span>
+        </button>
+        <button class="nav-item" data-tab="route" role="tab" aria-selected="false" aria-controls="tab-panel-route">
+          <span class="nav-icon" aria-hidden="true">🗺️</span>
+          <span class="nav-text">Route Map</span>
+        </button>
+        <button class="nav-item" data-tab="transit" role="tab" aria-selected="false" aria-controls="tab-panel-transit">
+          <span class="nav-icon" aria-hidden="true">🌿</span>
+          <span class="nav-text">Transit & Eco</span>
+        </button>
+        <button class="nav-item" data-tab="report" role="tab" aria-selected="false" aria-controls="tab-panel-report">
+          <span class="nav-icon" aria-hidden="true">⚠️</span>
+          <span class="nav-text">Report Issue</span>
+        </button>
+        <button class="nav-item" data-tab="info" role="tab" aria-selected="false" aria-controls="tab-panel-info">
+          <span class="nav-icon" aria-hidden="true">ℹ️</span>
+          <span class="nav-text">Venue Info</span>
+        </button>
+      </nav>
+    </aside>
 
-      <!-- Simulated mobile status bar + app nav -->
-      <header class="phone-header">
-        <div class="phone-status-bar">
-          <span class="phone-time" id="device-time">19:53</span>
-          <div class="phone-signals" aria-hidden="true">
-            <svg class="icon-signal" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M2 11.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-            <svg class="icon-battery" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M2 6h10v4H2V6z"/>
-              <path d="M2 4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H2zm10 1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h10z"/>
-            </svg>
-          </div>
+    <!-- Main Content Area -->
+    <main class="fan-main-content">
+      <!-- Mobile Top Header (Hidden on Desktop) -->
+      <header class="mobile-header">
+        <div class="mobile-branding">
+          <span class="pulse-indicator" aria-hidden="true"></span>
+          <h2>StadiumPulse</h2>
         </div>
-        <div class="app-navbar">
-          <div class="app-branding">
-            <span class="pulse-indicator" aria-hidden="true"></span>
-            <h2>StadiumPulse</h2>
-          </div>
-          <span class="app-view-label">Fan Companion</span>
-        </div>
+        <span class="view-tag">Fan Companion</span>
       </header>
 
-      <!-- Main nudge + map content -->
-      <div class="phone-content">
+      <!-- Tab Content Panels -->
+      <div class="fan-content-area">
 
-        <!-- TAB: Updates (default/active) -->
-        <div id="tab-panel-updates" role="tabpanel" aria-labelledby="tab-btn-updates">
-          <!-- Live nudge region — aria-live keeps screen-reader announcements intact -->
-          <section class="nudge-section" aria-labelledby="notification-title">
-            <h3 id="notification-title" class="visually-hidden">Live Safety and Traffic Guidance</h3>
+        <!-- TAB: Updates -->
+        <div id="tab-panel-updates" class="tab-panel" role="tabpanel">
+          <section class="panel-card nudge-section" aria-labelledby="notification-title">
+            <h3 id="notification-title" class="panel-title">Safety & Crowd Guidance</h3>
             <div class="nudge-box-wrapper" id="nudge-display-wrapper" aria-live="polite">
-              <!-- Rendered dynamically by app.js -->
               <div class="nudge-loading">Receiving route updates…</div>
             </div>
           </section>
+        </div>
 
-          <!-- Promoted Transit and Route Tip Section -->
-          <section class="transit-section" id="transit-display-wrapper" aria-label="Route and Transit Information" style="display: none;">
-            <!-- Dynamically generated card will be injected here by app.js -->
-          </section>
-        </div><!-- /#tab-panel-updates -->
-
-        <!-- TAB: Map -->
-        <div id="tab-panel-map" role="tabpanel" aria-labelledby="tab-btn-map" style="display:none;">
-          <!-- Dynamic SVG Schematic Map -->
-          <section class="map-placeholder" aria-label="Interactive Stadium Map">
+        <!-- TAB: Route Map -->
+        <div id="tab-panel-route" class="tab-panel" role="tabpanel" style="display:none;">
+          <section class="panel-card map-placeholder" aria-label="Interactive Stadium Map">
+            <h3 class="panel-title">Your Custom Wayfinding Route</h3>
             <div class="map-grid" id="map-grid-container">
               <!-- Dynamically populated SVG will be injected here -->
             </div>
             <p class="map-caption" id="map-caption-text">Awaiting route update…</p>
           </section>
-        </div><!-- /#tab-panel-map -->
+        </div>
 
-        <!-- TAB: Tickets — static info panel (no ticketing system in scope for this demo) -->
-        <div id="tab-panel-tickets" role="tabpanel" aria-labelledby="tab-btn-tickets" style="display:none;">
-          <section class="tickets-info-panel" aria-label="Ticketing Information">
-            <div class="tickets-icon" aria-hidden="true">🎟️</div>
-            <h3 class="tickets-title">Your Tickets</h3>
-            <p class="tickets-body">Match tickets for the FIFA World Cup 2026 Final are managed exclusively through the official FIFA ticketing platform.</p>
-            <a href="https://www.fifa.com/tickets" target="_blank" rel="noopener noreferrer" class="tickets-link">fifa.com/tickets ↗</a>
-            <p class="tickets-note">StadiumPulse handles crowd routing and safety guidance — ticket management is out of scope for this demo.</p>
+        <!-- TAB: Transit & Sustainability -->
+        <div id="tab-panel-transit" class="tab-panel" role="tabpanel" style="display:none;">
+          <section class="panel-card transit-section" aria-label="Route and Transit Information">
+            <h3 class="panel-title">Transit & Sustainability Guidance</h3>
+            <div id="transit-display-wrapper">
+              <!-- Dynamically generated card will be injected here by app.js -->
+              <p class="transit-card-text" style="color: var(--ink-muted); text-align: center; padding: 2rem;">No active transit advisories for your current profile.</p>
+            </div>
           </section>
-        </div><!-- /#tab-panel-tickets -->
+        </div>
 
-      </div><!-- /.phone-content -->
+        <!-- TAB: Report an Issue -->
+        <div id="tab-panel-report" class="tab-panel" role="tabpanel" style="display:none;">
+          <section class="panel-card report-info-panel" aria-label="Report an Issue">
+            <h3 class="panel-title">Report an Issue</h3>
+            <div class="report-box">
+              <span class="report-icon" aria-hidden="true">⚠️</span>
+              <h4>Control Room Dispatch</h4>
+              <p class="report-body">Are you noticing a medical emergency, security issue, facility hazard, or crowd congestion? Field volunteers are standing by to triage your report directly to stadium operators.</p>
+              <a href="/volunteer" class="btn btn-primary" style="margin-top: 1rem; width: auto; display: inline-flex;">Go to Volunteer Portal ↗</a>
+              <p class="report-note">Your report will be automatically translated and categorized by our AI triage pipeline.</p>
+            </div>
+          </section>
+        </div>
 
-      <!-- Bottom nav —
-           Tab switching is handled by tab-nav.js logic in app.js:
-           UPDATES: default view; MAP: shows SVG wayfinding; TICKETS: static info panel -->
-      <footer class="phone-footer">
-        <nav class="mobile-nav" aria-label="App Navigation" role="tablist">
-          <button class="nav-item active" id="tab-btn-updates"
-                  role="tab" aria-selected="true" aria-controls="tab-panel-updates">
-            <span class="nav-icon" aria-hidden="true">📢</span>
-            <span class="nav-text">Updates</span>
-          </button>
-          <button class="nav-item" id="tab-btn-map"
-                  role="tab" aria-selected="false" aria-controls="tab-panel-map">
-            <span class="nav-icon" aria-hidden="true">🗺️</span>
-            <span class="nav-text">Map</span>
-          </button>
-          <button class="nav-item" id="tab-btn-tickets"
-                  role="tab" aria-selected="false" aria-controls="tab-panel-tickets">
-            <span class="nav-icon" aria-hidden="true">🎟️</span>
-            <span class="nav-text">Tickets</span>
-          </button>
-        </nav>
-      </footer>
+        <!-- TAB: Venue & Ticket Info -->
+        <div id="tab-panel-info" class="tab-panel" role="tabpanel" style="display:none;">
+          <section class="panel-card tickets-info-panel" aria-label="Venue Information">
+            <h3 class="panel-title">Match & Venue Details</h3>
+            <div class="info-box">
+              <div class="tickets-icon" aria-hidden="true">🏟️</div>
+              <h4 class="tickets-title">MetLife Stadium</h4>
+              <p class="tickets-body">Host of the FIFA World Cup 2026 Final on July 19, 2026. Capacity: 78,576.</p>
+              <p class="tickets-body" style="margin-top: 0.5rem;">Match tickets are managed exclusively through the official FIFA ticketing platform.</p>
+              <a href="https://www.fifa.com/tickets" target="_blank" rel="noopener noreferrer" class="tickets-link" style="margin: 1rem 0;">fifa.com/tickets ↗</a>
+              <p class="tickets-note">StadiumPulse handles crowd routing and safety guidance — ticket management is out of scope for this demo.</p>
+            </div>
+          </section>
+        </div>
 
-    </div><!-- /.phone-frame -->
+      </div>
+    </main>
 
-    <!-- Demo controller — sits outside phone frame -->
+    <!-- Demo Controller Panel -->
     <aside class="demo-controls-panel" aria-label="Hackathon Demo Controller">
       <h4>Demo Controller</h4>
-      <p>Select a fan profile — the nudge card polls live every 3 seconds using the active profile.</p>
+      <p>Select a fan profile — the companion view polls live every 3 seconds using the active profile.</p>
 
-      <!-- Profile dropdowns passed through to fetchNudge via app.js -->
       <div class="profile-selector">
         <label for="lang-select">Language (10 Supported)</label>
         <select id="lang-select" aria-label="Select language for nudge">
@@ -142,7 +155,6 @@
         </select>
       </div>
 
-
       <button class="btn btn-secondary" id="next-nudge-btn" aria-label="Cycle to next demo scenario">
         Next Scenario Example
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
@@ -154,8 +166,33 @@
         Scenario: Normal Exit Update (EN)
       </div>
     </aside>
+  </div>
 
-  </main><!-- /.phone-wrapper -->
+  <!-- Mobile Bottom Tab Bar (Hidden on Desktop) -->
+  <footer class="mobile-tab-bar">
+    <nav class="mobile-nav" aria-label="App Navigation" role="tablist">
+      <button class="nav-item active" data-tab="updates" role="tab" aria-selected="true" aria-controls="tab-panel-updates">
+        <span class="nav-icon" aria-hidden="true">📢</span>
+        <span class="nav-text">Updates</span>
+      </button>
+      <button class="nav-item" data-tab="route" role="tab" aria-selected="false" aria-controls="tab-panel-route">
+        <span class="nav-icon" aria-hidden="true">🗺️</span>
+        <span class="nav-text">Route</span>
+      </button>
+      <button class="nav-item" data-tab="transit" role="tab" aria-selected="false" aria-controls="tab-panel-transit">
+        <span class="nav-icon" aria-hidden="true">🌿</span>
+        <span class="nav-text">Transit</span>
+      </button>
+      <button class="nav-item" data-tab="report" role="tab" aria-selected="false" aria-controls="tab-panel-report">
+        <span class="nav-icon" aria-hidden="true">⚠️</span>
+        <span class="nav-text">Report</span>
+      </button>
+      <button class="nav-item" data-tab="info" role="tab" aria-selected="false" aria-controls="tab-panel-info">
+        <span class="nav-icon" aria-hidden="true">ℹ️</span>
+        <span class="nav-text">Info</span>
+      </button>
+    </nav>
+  </footer>
 
   <script src="app.js"></script>
   <script src="session-nav.js"></script>

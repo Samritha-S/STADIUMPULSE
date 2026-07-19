@@ -362,36 +362,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ── Bottom tab navigation ────────────────────────────────────────
-  // Tab IDs and their matching panel IDs.
-  // Tickets stays as a static info panel (no real ticketing system — see README).
+  // ── Tab navigation (coordinated sidebar + bottom tab bar) ────────
   const TABS = [
-    { btn: "tab-btn-updates",  panel: "tab-panel-updates"  },
-    { btn: "tab-btn-map",      panel: "tab-panel-map"      },
-    { btn: "tab-btn-tickets",  panel: "tab-panel-tickets"  },
+    { key: "updates", panel: "tab-panel-updates" },
+    { key: "route",   panel: "tab-panel-route"   },
+    { key: "transit", panel: "tab-panel-transit" },
+    { key: "report",  panel: "tab-panel-report"  },
+    { key: "info",    panel: "tab-panel-info"    },
   ];
 
   function switchTab(activeKey) {
-    TABS.forEach(({ btn, panel }) => {
-      const btnEl   = document.getElementById(btn);
+    TABS.forEach(({ key, panel }) => {
       const panelEl = document.getElementById(panel);
-      const isActive = btn === activeKey;
+      const isActive = key === activeKey;
 
-      if (btnEl) {
+      // Select all buttons targeting this tab (both desktop sidebar and mobile bottom tab bar)
+      const btnEls = document.querySelectorAll(`[data-tab="${key}"]`);
+      btnEls.forEach(btnEl => {
         btnEl.classList.toggle("active", isActive);
         btnEl.setAttribute("aria-selected", String(isActive));
-      }
+      });
+
       if (panelEl) {
         panelEl.style.display = isActive ? "" : "none";
       }
     });
   }
 
-  TABS.forEach(({ btn }) => {
-    const btnEl = document.getElementById(btn);
-    if (btnEl) {
-      btnEl.addEventListener("click", () => switchTab(btn));
-    }
+  // Bind click listeners to all tab buttons
+  document.querySelectorAll("[data-tab]").forEach(btnEl => {
+    btnEl.addEventListener("click", () => {
+      const targetTab = btnEl.getAttribute("data-tab");
+      switchTab(targetTab);
+    });
   });
 });
 
