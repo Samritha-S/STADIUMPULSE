@@ -230,10 +230,16 @@
     } else {
       const identity = document.createElement("span");
       identity.className = "sp-identity";
-      identity.innerHTML = `
-        <span>${displayName}</span>
-        <span class="sp-role-badge">${displayRole}</span>
-      `;
+
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = displayName;         // safe: textContent never interprets HTML
+
+      const roleSpan = document.createElement("span");
+      roleSpan.className = "sp-role-badge";
+      roleSpan.textContent = displayRole;         // safe: textContent never interprets HTML
+
+      identity.appendChild(nameSpan);
+      identity.appendChild(roleSpan);
       nav.appendChild(identity);
     }
 

@@ -35,7 +35,7 @@
     },
     {
       "source": "/",
-      "destination": "/frontend/fan-view/index.html"
+      "destination": "/api/index.py"
     }
   ]
 }
