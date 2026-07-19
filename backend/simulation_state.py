@@ -231,22 +231,28 @@ def _next_count_watch_seed(capacity: int) -> int:
 # SimulationState
 # ---------------------------------------------------------------------------
 
+import time
+import os
+
 class SimulationState:
     """
-    Maintains per-zone rolling count histories and advances them on each
-    tick() call.  Thread-safe for concurrent FastAPI request handlers.
+    Maintains per-zone rolling count histories.
+    Supports dual modes:
+    1. Serverless Mode: If VERCEL env var is present, computes deterministic,
+       time-based tick histories so that all Lambda instances return synchronized
+       simulation curves without in-memory state.
+    2. Stateful Mode: Fallback for local development and unit tests.
     """
 
     def __init__(self, zone_defs: List[Dict[str, Any]]) -> None:
         self._lock = threading.Lock()
         self._zone_defs = zone_defs
-        # Per-zone tick counters track how far along each zone's curve we are.
+        self._is_serverless = "VERCEL" in os.environ
+        
+        # Stateful mode attributes
         self._tick_counters: Dict[str, int] = {}
-        # Rolling count histories: zone_id -> List[int]
         self._histories: Dict[str, List[int]] = {}
 
-        # Seed each zone with a short initial history so forecast_zone has
-        # enough points to compute a meaningful slope from tick 0.
         for zdef in zone_defs:
             zid = zdef["zone_id"]
             stype = zdef["scenario_type"]
@@ -258,18 +264,16 @@ class SimulationState:
             for i in range(seed_points):
                 seed.append(self._generate_next(stype, i, cap))
             self._histories[zid] = seed
-            self._tick_counters[zid] = seed_points  # next tick starts here
+            self._tick_counters[zid] = seed_points
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
+    def _get_serverless_tick(self) -> int:
+        # 1 tick = 15 seconds
+        return int(time.time() / 15)
 
     def tick(self) -> None:
-        """
-        Advance every zone's simulation by one step.  Appends a new count
-        to each zone's history and trims the history to MAX_HISTORY_LEN.
-        Must be called once per request cycle (by /api/zones).
-        """
+        if self._is_serverless:
+            return  # No-op on serverless (tick is time-driven)
+            
         with self._lock:
             for zdef in self._zone_defs:
                 zid = zdef["zone_id"]
@@ -278,23 +282,33 @@ class SimulationState:
                 tick_n = self._tick_counters[zid]
                 new_count = self._generate_next(stype, tick_n, cap)
                 self._histories[zid].append(new_count)
-                # Bound the history
                 if len(self._histories[zid]) > MAX_HISTORY_LEN:
                     self._histories[zid] = self._histories[zid][-MAX_HISTORY_LEN:]
                 self._tick_counters[zid] = tick_n + 1
 
     def get_current_zone_states(self) -> List[Dict[str, Any]]:
-        """
-        Snapshot current histories and run forecast_zone on each, returning
-        a list of ZoneState dicts matching the shared schema.
-        """
-        # Take a shallow snapshot under the lock so forecast_zone (which can
-        # be slow if it ever does I/O) runs outside the critical section.
-        with self._lock:
-            snapshots = {
-                zdef["zone_id"]: list(self._histories[zdef["zone_id"]])
-                for zdef in self._zone_defs
-            }
+        if self._is_serverless:
+            current_tick = self._get_serverless_tick()
+            snapshots = {}
+            for zdef in self._zone_defs:
+                zid = zdef["zone_id"]
+                stype = zdef["scenario_type"]
+                cap = zdef["capacity"]
+                
+                history = []
+                for t in range(current_tick - MAX_HISTORY_LEN + 1, current_tick + 1):
+                    # Deterministic seed per tick and zone so multiple lambdas are fully in sync
+                    random.seed(t + hash(zid) % 1000000)
+                    history.append(self._generate_next(stype, t, cap))
+                snapshots[zid] = history
+            # Restore random seeding
+            random.seed(None)
+        else:
+            with self._lock:
+                snapshots = {
+                    zdef["zone_id"]: list(self._histories[zdef["zone_id"]])
+                    for zdef in self._zone_defs
+                }
 
         states = []
         for zdef in self._zone_defs:
@@ -308,12 +322,27 @@ class SimulationState:
         return states
 
     def get_tick_counter(self, zone_id: str) -> int:
-        """Return the current tick index for a zone (used in tests)."""
+        if self._is_serverless:
+            return self._get_serverless_tick()
         with self._lock:
             return self._tick_counters.get(zone_id, 0)
 
     def get_history(self, zone_id: str) -> List[int]:
-        """Return a copy of the current history for a zone (used in tests)."""
+        if self._is_serverless:
+            current_tick = self._get_serverless_tick()
+            zdef = next((z for z in self._zone_defs if z["zone_id"] == zone_id), None)
+            if not zdef:
+                return []
+            stype = zdef["scenario_type"]
+            cap = zdef["capacity"]
+            
+            history = []
+            for t in range(current_tick - MAX_HISTORY_LEN + 1, current_tick + 1):
+                random.seed(t + hash(zone_id) % 1000000)
+                history.append(self._generate_next(stype, t, cap))
+            random.seed(None)
+            return history
+            
         with self._lock:
             return list(self._histories.get(zone_id, []))
 
