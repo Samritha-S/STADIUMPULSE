@@ -13,7 +13,9 @@ Run with:
 
 import os
 import sys
+import threading
 from typing import Any, Dict, List
+
 
 # ── allow  `uvicorn backend.server:app` from the stadiumpulse/ working dir
 sys.path.insert(0, os.path.dirname(__file__))
@@ -31,9 +33,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from reasoning.generate_brief import generate_brief
 from reasoning.generate_nudge import generate_nudge
+from reasoning.generate_report import classify_report
 
 # ── Stateful simulation — one shared instance for the lifetime of the process
-from simulation_state import SIMULATION
+from simulation_state import SIMULATION, ZONE_DEFS
+from pydantic import BaseModel, Field
 
 app = FastAPI(title="StadiumPulse API", version="0.1.0")
 
@@ -63,9 +67,10 @@ app.add_middleware(
     ],
     allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -75,6 +80,8 @@ from fastapi.responses import HTMLResponse
 # Since the app runs from workspace root, 'frontend/dashboard' and 'frontend/fan-view' are correct.
 app.mount("/admin", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend/dashboard"), html=True), name="admin")
 app.mount("/fan", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend/fan-view"), html=True), name="fan")
+app.mount("/volunteer", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../frontend/volunteer"), html=True), name="volunteer")
+
 
 @app.get("/", response_class=HTMLResponse)
 def get_landing():
@@ -164,15 +171,16 @@ def get_landing():
     
     .portal-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 1.25rem;
     }
 
-    @media (max-width: 580px) {
+    @media (max-width: 768px) {
       .portal-grid {
         grid-template-columns: 1fr;
       }
     }
+
     
     .portal-card {
       background-color: var(--surface-raised);
@@ -258,10 +266,17 @@ def get_landing():
         <h2 class="card-title">Fan Companion</h2>
         <p class="card-desc">Personalized multilingual companion view providing step-free routing nudges, optimized egress pathways, and live directions.</p>
       </a>
+
+      <a href="/volunteer" class="portal-card" aria-label="Access Volunteer Incident Triage Portal">
+        <span class="card-badge">FIELD VOLUNTEERS</span>
+        <h2 class="card-title">Volunteer Portal</h2>
+        <p class="card-desc">Submit raw free-text incident reports from the field for automated classification, tagging, and control-room dispatch.</p>
+      </a>
     </nav>
   </div>
 </body>
 </html>"""
+
 
 
 def _most_urgent_zone(states: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -352,3 +367,42 @@ def get_nudge(
 
     nudge = generate_nudge(target_zone, fan_profile)
     return nudge
+
+
+# ── Volunteer Triage In-Memory Store ─────────────────────────────────────────
+# Bounded to last 20 reports, thread-safe access isn't strictly requested but
+# we use a simple lock to keep it robust and prevent race conditions.
+VOLUNTEER_REPORTS: List[Dict[str, Any]] = []
+reports_lock = threading.Lock()
+
+
+class ReportRequest(BaseModel):
+    # Reject empty raw_text (min_length=1) and cap raw_text length (max_length=1000) for security.
+    raw_text: str = Field(..., min_length=1, max_length=1000, description="Raw volunteer message text.")
+
+@app.post("/api/report", response_model=Dict[str, Any])
+def post_report(payload: ReportRequest):
+    """
+    Submits a raw volunteer incident report, runs classify_report to triage it via
+    Gemini, and appends it to the in-memory store (bounded to last 20 reports).
+    """
+    text = payload.raw_text.strip()
+    if not text:
+        raise HTTPException(status_code=422, detail="raw_text cannot be empty or whitespace only")
+
+    known_zones = [z["zone_id"] for z in ZONE_DEFS]
+    report = classify_report(text, known_zones)
+
+    with reports_lock:
+        VOLUNTEER_REPORTS.insert(0, report)
+        if len(VOLUNTEER_REPORTS) > 20:
+            del VOLUNTEER_REPORTS[20:]
+
+    return report
+
+@app.get("/api/reports", response_model=List[Dict[str, Any]])
+def get_reports():
+    """Returns the current list of volunteer reports, most recent first."""
+    with reports_lock:
+        return list(VOLUNTEER_REPORTS)
+

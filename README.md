@@ -162,7 +162,7 @@ Quick reference:
 pip install fastapi uvicorn python-dotenv google-generativeai
 cp .env.example .env   # then add GEMINI_API_KEY
 uvicorn backend.server:app --reload --port 8088
-python -m unittest discover -s tests -v   # 53 tests, all mocked
+python -m unittest discover -s tests -v   # 59 tests, all mocked
 ```
 
 ---
@@ -178,20 +178,24 @@ STADIUMPULSE/
 │   ├── reasoning/
 │   │   ├── generate_brief.py      # Gemini → ControlRoomBrief (JSON mode, 3-tier fallback)
 │   │   ├── generate_nudge.py      # Gemini → FanNudge (JSON mode, multilingual fallback)
+│   │   ├── generate_report.py     # Gemini → VolunteerReport (JSON mode, 3-tier fallback)
 │   │   └── PROMPT_SPEC.md         # System prompts, few-shot examples, edge case spec
 │   ├── shared/
 │   │   ├── ZoneState.json         # Shared data schema
 │   │   ├── ControlRoomBrief.json  # Shared data schema
-│   │   └── FanNudge.json          # Shared data schema
-│   ├── server.py                  # FastAPI server: /api/zones, /api/briefs, /api/nudge
+│   │   ├── FanNudge.json          # Shared data schema
+│   │   └── VolunteerReport.json   # Shared data schema
+│   ├── server.py                  # FastAPI server: /api/zones, /api/briefs, /api/nudge, /api/report
 │   └── simulation_state.py        # Stateful ticking simulation engine (singleton)
 ├── frontend/
 │   ├── dashboard/                 # Control-room web UI — live polling, NEW badges, offline detection
-│   └── fan-view/                  # Fan mobile mockup — live polling, nudge highlight animation
+│   ├── fan-view/                  # Fan mobile mockup — live polling, nudge highlight animation
+│   └── volunteer/                 # Volunteer incident triage portal — form submit, real-time feedback
 ├── tests/
 │   ├── test_reasoning.py          # Unit tests for generate_brief / generate_nudge (mocked)
+│   ├── test_report.py             # Unit tests for classify_report (mocked)
 │   ├── test_forecast.py           # Unit tests for forecast_zone and data_generator
-│   └── test_simulation_state.py   # Unit tests for SimulationState tick/escalation/bounds
+│   └── test_simulation_state.py   # Unit tests for state ticking and forecasts
 ├── .env.example                   # Environment variable template
 ├── SETUP.md                       # Step-by-step setup guide
 └── README.md                      # This file

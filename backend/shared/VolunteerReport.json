@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VolunteerReport",
+  "description": "Structured volunteer incident triage report classified from raw text.",
+  "type": "object",
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "description": "Unique identifier for this volunteer report."
+    },
+    "raw_text": {
+      "type": "string",
+      "description": "Original text submitted by the volunteer."
+    },
+    "detected_language": {
+      "type": "string",
+      "description": "Detected ISO 639-1 language code of the raw text."
+    },
+    "zone_id": {
+      "type": ["string", "null"],
+      "description": "Resolved zone ID corresponding to the venue model, or null if unclear or not mentioned."
+    },
+    "category": {
+      "type": "string",
+      "enum": ["medical", "security", "crowd", "facility", "other"],
+      "description": "Incident category classification."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Assessed incident urgency / severity."
+    },
+    "structured_summary": {
+      "type": "string",
+      "description": "A clean one-sentence summary in English for operations staff."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp indicating when the report was processed."
+    }
+  },
+  "required": [
+    "report_id",
+    "raw_text",
+    "detected_language",
+    "category",
+    "severity",
+    "structured_summary",
+    "generated_at"
+  ]
+}

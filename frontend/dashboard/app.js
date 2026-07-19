@@ -116,6 +116,17 @@ async function fetchLatestBriefs() {
   }
 }
 
+async function fetchVolunteerReports() {
+  try {
+    const res = await fetch(`${API_BASE}/api/reports`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn("[StadiumPulse] /api/reports unreachable.", err.message);
+    return [];
+  }
+}
+
 // RENDER LOGIC
 function renderZones(zones) {
   const container = document.getElementById("zone-grid-container");
@@ -184,11 +195,45 @@ function renderZones(zones) {
 
 const renderedBriefSignatures = new Set();
 
-function renderBriefs(briefs) {
+function renderBriefs(briefs, reports = []) {
   const container = document.getElementById("brief-feed-container");
   if (!container) return;
 
-  if (briefs.length === 0) {
+  // Combine automated briefs and volunteer reports into one feed, sorted by generated_at desc
+  const combined = [];
+  briefs.forEach(b => {
+    combined.push({
+      id: `auto_${b.zone_id}_${b.severity}_${b.summary_text.slice(0, 20)}`,
+      type: "auto",
+      severity: b.severity,
+      generated_at: b.generated_at,
+      title: `Zone: ${b.zone_id.replace("zone_", "").replace(/_/g, " ").toUpperCase()}`,
+      summary: b.summary_text,
+      recommended: b.recommended_action,
+      reroute: b.suggested_reroute_zone,
+      languages: b.languages_needed
+    });
+  });
+
+  reports.forEach(r => {
+    const zoneLabel = r.zone_id ? ` (Zone: ${r.zone_id.replace("zone_", "").replace(/_/g, " ").toUpperCase()})` : " (Location Unspecified)";
+    combined.push({
+      id: `vol_${r.report_id}`,
+      type: "volunteer",
+      severity: r.severity,
+      generated_at: r.generated_at,
+      title: `Volunteer Report: ${r.report_id.toUpperCase()}${zoneLabel}`,
+      summary: r.structured_summary,
+      raw_text: r.raw_text,
+      category: r.category,
+      lang: r.detected_language
+    });
+  });
+
+  // Sort: most recent first
+  combined.sort((a, b) => new Date(b.generated_at) - new Date(a.generated_at));
+
+  if (combined.length === 0) {
     container.innerHTML = `<div class="loading-state">No alerts or briefings at this time.</div>`;
     return;
   }
@@ -205,8 +250,8 @@ function renderBriefs(briefs) {
 
   const activeSignatures = new Set();
 
-  briefs.forEach(brief => {
-    const signature = `${brief.zone_id}_${brief.severity}_${brief.summary_text.slice(0, 30)}`;
+  combined.forEach(item => {
+    const signature = item.id;
     activeSignatures.add(signature);
 
     const isNew = !renderedBriefSignatures.has(signature);
@@ -214,8 +259,10 @@ function renderBriefs(briefs) {
       renderedBriefSignatures.add(signature);
     }
 
-    const formattedTime = new Date(brief.generated_at).toLocaleTimeString();
-    const severityLabel = brief.severity.toUpperCase();
+    const formattedTime = new Date(item.generated_at).toLocaleTimeString();
+    const severityLabel = item.severity.toUpperCase();
+    const typeBadge = item.type === "auto" ? "badge-auto" : "badge-vol";
+    const typeLabel = item.type === "auto" ? "AUTO ALERT" : "VOLUNTEER FIELD REPORT";
 
     let card = existingBriefCards[signature];
     if (!card) {
@@ -224,42 +271,62 @@ function renderBriefs(briefs) {
       container.appendChild(card);
     }
 
-    card.className = `brief-card brief-${brief.severity}` + (isNew ? " new-brief-highlight" : "");
+    card.className = `brief-card brief-${item.severity}` + (isNew ? " new-brief-highlight" : "");
 
-    card.innerHTML = `
+    let innerHTML = `
       <div class="brief-card-header">
-        <span class="brief-zone-id">Zone: ${escapeHtml(brief.zone_id)}</span>
-        <span class="brief-time">
-          ${formattedTime}
-          ${isNew ? `<span class="brief-new-badge">NEW</span>` : ''}
-        </span>
+        <span class="brief-zone-id">${escapeHtml(item.title)}</span>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span class="badge ${typeBadge}">${typeLabel}</span>
+          <span class="brief-time">
+            ${formattedTime}
+            ${isNew ? `<span class="brief-new-badge">NEW</span>` : ''}
+          </span>
+        </div>
       </div>
       <p class="brief-summary">
-        <strong>[${severityLabel}]</strong> ${escapeHtml(brief.summary_text)}
+        <strong>[${severityLabel}]</strong> ${escapeHtml(item.summary)}
       </p>
-      <div class="brief-action-box">
-        <span class="action-label">Recommended Action</span>
-        <p class="brief-action-text">${escapeHtml(brief.recommended_action)}</p>
-      </div>
-      ${brief.suggested_reroute_zone !== "none" ? `
-        <div class="brief-reroute-tag">
-          Suggested Reroute: <strong>${escapeHtml(brief.suggested_reroute_zone)}</strong>
-        </div>
-      ` : ''}
     `;
+
+    if (item.type === "auto") {
+      innerHTML += `
+        <div class="brief-action-box">
+          <span class="action-label">Recommended Action</span>
+          <p class="brief-action-text">${escapeHtml(item.recommended)}</p>
+        </div>
+        ${item.reroute !== "none" ? `
+          <div class="brief-reroute-tag">
+            Suggested Reroute: <strong>${escapeHtml(item.reroute)}</strong>
+          </div>
+        ` : ''}
+      `;
+    } else {
+      // Volunteer specifics
+      innerHTML += `
+        <div class="brief-action-box" style="margin-top: 0.5rem; padding: 0.5rem 0.75rem;">
+          <span class="action-label" style="font-size: 0.65rem; color: var(--ink-muted);">Original Text (${item.lang.toUpperCase()})</span>
+          <p class="brief-action-text" style="font-size: 0.8rem; font-style: italic; color: var(--ink); margin-top: 0.2rem;">"${escapeHtml(item.raw_text)}"</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+          <span class="badge badge-ops" style="font-size: 0.6rem; opacity: 0.8;">Category: ${escapeHtml(item.category.toUpperCase())}</span>
+        </div>
+      `;
+    }
+
+    card.innerHTML = innerHTML;
   });
 
-  // Remove stale briefs
+  // Remove stale cards
   Object.keys(existingBriefCards).forEach(sig => {
     if (!activeSignatures.has(sig)) {
       existingBriefCards[sig].remove();
     }
   });
 
-  // Maintain severity order by re-appending in order of the active list
-  briefs.forEach(brief => {
-    const signature = `${brief.zone_id}_${brief.severity}_${brief.summary_text.slice(0, 30)}`;
-    const card = container.querySelector(`[data-brief-id="${signature}"]`);
+  // Re-append in combined order
+  combined.forEach(item => {
+    const card = container.querySelector(`[data-brief-id="${item.id}"]`);
     if (card) {
       container.appendChild(card);
     }
@@ -282,9 +349,10 @@ let pollingIntervalId = null;
 // Refresh triggers
 async function loadDashboardData() {
   try {
-    const [zones, briefs] = await Promise.all([
+    const [zones, briefs, reports] = await Promise.all([
       fetchZoneStates(),
-      fetchLatestBriefs()
+      fetchLatestBriefs(),
+      fetchVolunteerReports()
     ]);
 
     if (isLastFetchMocked) {
@@ -309,7 +377,7 @@ async function loadDashboardData() {
     }
 
     renderZones(zones);
-    renderBriefs(briefs);
+    renderBriefs(briefs, reports);
   } catch (error) {
     console.error("Failed to load dashboard data:", error);
   }

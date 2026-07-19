@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StadiumPulse — Volunteer Incident Portal</title>
+  <meta name="description" content="Submit field incident reports for automated triage at MetLife Stadium.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="mobile-body">
+
+  <main class="phone-wrapper">
+    <div class="phone-frame">
+      
+      <!-- Header -->
+      <header class="phone-header">
+        <div class="phone-status-bar">
+          <span class="phone-time" id="device-time">16:30</span>
+          <div class="phone-signals" aria-hidden="true">
+            <span style="font-size: 0.7rem; opacity: 0.7;">📶 🔋</span>
+          </div>
+        </div>
+        <div class="app-navbar">
+          <div class="app-branding">
+            <span class="pulse-indicator" aria-hidden="true"></span>
+            <h2>StadiumPulse</h2>
+          </div>
+          <span class="app-view-label">Volunteer Desk</span>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="phone-content">
+        <div class="portal-intro">
+          <h3>Incident Dispatch</h3>
+          <p>Submit observations from your post. The system will detect location, category, and severity automatically for the Ops Center.</p>
+        </div>
+
+        <form id="incident-form" class="incident-form" novalidate>
+          <div class="form-group">
+            <label for="raw_text" class="input-label">Report Details</label>
+            <textarea 
+              id="raw_text" 
+              name="raw_text" 
+              rows="6" 
+              placeholder="e.g., Spill in 200 Level toilet near Gate C concourse, floor is slippery..." 
+              required
+              aria-describedby="text-help"
+            ></textarea>
+            <div id="text-help" class="input-help">State the incident type and level/gate location as clearly as possible. (Max 1000 characters)</div>
+            <div id="char-counter" class="char-counter">0 / 1000</div>
+          </div>
+
+          <div id="form-error" class="error-banner" role="alert" aria-live="assertive" style="display: none;"></div>
+
+          <button type="submit" id="submit-btn" class="submit-btn">
+            <span id="btn-text">Submit Incident</span>
+            <span id="btn-loader" class="loader" style="display: none;"></span>
+          </button>
+        </form>
+
+        <!-- Live confirmation message region -->
+        <div id="confirmation-panel" class="confirmation-panel" role="region" aria-live="polite" style="display: none;">
+          <div class="success-icon" aria-hidden="true">✓</div>
+          <h4>Report Dispatched</h4>
+          <p id="confirm-summary">Automated triage summary: processing...</p>
+          <div class="triage-tags">
+            <span class="tag tag-category" id="tag-category">Category</span>
+            <span class="tag tag-severity" id="tag-severity">Severity</span>
+            <span class="tag tag-zone" id="tag-zone">Zone</span>
+          </div>
+          <button type="button" id="reset-btn" class="reset-btn">Submit Another Report</button>
+        </div>
+      </div>
+
+      <!-- Footer nav -->
+      <footer class="phone-footer">
+        <nav class="mobile-nav" aria-label="Volunteer Navigation">
+          <a href="/" class="nav-item">
+            <span class="nav-icon" aria-hidden="true">🏠</span>
+            <span class="nav-text">Home</span>
+          </a>
+          <button class="nav-item active" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">📝</span>
+            <span class="nav-text">Report</span>
+          </button>
+        </nav>
+      </footer>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
