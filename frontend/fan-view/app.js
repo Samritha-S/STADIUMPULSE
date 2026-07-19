@@ -103,7 +103,7 @@ function renderNudge(nudge, urgency) {
     labelText = "Optimized Egress";
   }
 
-  const signature = `${urgency}_${nudge.message_text}`;
+  const signature = `${urgency}_${nudge.suggested_route}`;
   const isChanged = lastNudgeSignature && lastNudgeSignature !== signature;
   lastNudgeSignature = signature;
 
@@ -123,7 +123,7 @@ function renderNudge(nudge, urgency) {
         </span>
         <div class="route-text-content">
           <span class="route-lbl">Suggested Route</span>
-          <span class="route-val">${escapeHtml(nudge.suggested_route.toUpperCase().replace('_', ' '))}</span>
+          <span class="route-val">${escapeHtml(nudge.suggested_route.toUpperCase().replace(/_/g, ' '))}</span>
         </div>
       </div>
       
@@ -132,6 +132,9 @@ function renderNudge(nudge, urgency) {
       ` : ''}
     </article>
   `;
+
+  // Update the SVG wayfinding map whenever the nudge card updates
+  renderMap(nudge.suggested_route, urgency, isMobility, isChanged);
 }
 
 // Helper: Escape HTML strings to prevent XSS
@@ -142,6 +145,129 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+// ── SVG WAYFINDING MAP ────────────────────────────────────────────
+// Generates a schematic SVG route diagram from the nudge's suggested_route.
+// Called on every poll cycle from renderNudge(); updates in place with no flicker.
+// animateIn — true when the route just changed, triggers pulse animation.
+function renderMap(suggestedRoute, urgency, isMobility, animateIn) {
+  const container = document.getElementById("map-grid-container");
+  const caption   = document.getElementById("map-caption-text");
+  if (!container) return;
+
+  // ── Resolve color tokens from the CSS custom properties ──────
+  // Read computed values so we stay in sync with the CSS design system.
+  const style = getComputedStyle(document.documentElement);
+  const colorNormal   = style.getPropertyValue("--pulse-normal").trim();
+  const colorWatch    = style.getPropertyValue("--pulse-watch").trim();
+  const colorCritical = style.getPropertyValue("--pulse-critical").trim();
+  const colorMaroon   = style.getPropertyValue("--maroon-primary").trim();
+  const colorInk      = style.getPropertyValue("--ink").trim();
+  const colorMuted    = style.getPropertyValue("--ink-muted").trim();
+
+  // Route line color tracks urgency (same logic as badge colors)
+  let pathColor = colorNormal;
+  if (urgency === "medium") pathColor = colorWatch;
+  if (urgency === "critical") pathColor = colorCritical;
+
+  // Friendly destination label from the route id
+  const destLabel = suggestedRoute.replace(/_/g, ' ').toUpperCase();
+
+  // ── SVG coordinate constants ─────────────────────────────────
+  const W = 300, H = 140;   // viewBox dimensions
+  const ORIGIN_X = 42, ORIGIN_Y = H / 2;
+  const DEST_X   = W - 42,  DEST_Y   = H / 2;
+  // Mid-point for a gentle arc bend
+  const MID_X = W / 2, MID_Y = H / 2 - 20;
+
+  // Solid path for standard routes; dashed for step-free / accessible routes
+  const strokeDash = isMobility ? "6 4" : "none";
+
+  // Wheelchair icon path — inlined so no external SVG dependency
+  const wheelchairPath = `M${MID_X - 6},${MID_Y - 4}
+    a4,4 0 1,0 8,0 a4,4 0 1,0-8,0
+    m-2,6 l2-1 2,6 6,0 m-8-6 l-3,5`;
+
+  // ── Build the SVG string ──────────────────────────────────────
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  // Use innerHTML for simplicity — no complex DOM diffing needed for this small element
+  const destGroupClass = animateIn ? 'map-dest-animated' : '';
+  const ringClass       = animateIn ? 'map-dest-ring-animated' : '';
+
+  container.innerHTML = `
+    <svg
+      class="map-svg"
+      viewBox="0 0 ${W} ${H}"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="${isMobility
+        ? `Step-free accessible route to ${destLabel}`
+        : `Route to ${destLabel}`}"
+    >
+      <!-- Visually-hidden text description for screen readers -->
+      <title>${isMobility
+        ? `Step-free accessible route to ${destLabel}`
+        : `Optimised route from your current position to ${destLabel}`}</title>
+
+      <!-- Route path: arc from origin to destination -->
+      <path
+        d="M${ORIGIN_X},${ORIGIN_Y} Q${MID_X},${MID_Y} ${DEST_X},${DEST_Y}"
+        fill="none"
+        stroke="${pathColor}"
+        stroke-width="2"
+        stroke-dasharray="${strokeDash}"
+        stroke-linecap="round"
+        opacity="0.85"
+      />
+
+      <!-- Origin node — fixed 'You' marker -->
+      <circle cx="${ORIGIN_X}" cy="${ORIGIN_Y}" r="9"
+        fill="${colorMaroon}" opacity="0.9" />
+      <circle cx="${ORIGIN_X}" cy="${ORIGIN_Y}" r="9"
+        fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
+      <text x="${ORIGIN_X}" y="${ORIGIN_Y + 22}"
+        class="map-node-text" text-anchor="middle">YOU</text>
+
+      <!-- Destination node group — animated on route change -->
+      <g class="${destGroupClass}" style="transform-origin: ${DEST_X}px ${DEST_Y}px;">
+        <!-- Pulse ring (animates out on arrival) -->
+        ${animateIn ? `<circle cx="${DEST_X}" cy="${DEST_Y}" r="9"
+          fill="none" stroke="${pathColor}" stroke-width="1.5"
+          class="${ringClass}" opacity="0" />` : ''}
+
+        <!-- Destination fill circle -->
+        <circle cx="${DEST_X}" cy="${DEST_Y}" r="10"
+          fill="${pathColor}" opacity="0.9" />
+        <circle cx="${DEST_X}" cy="${DEST_Y}" r="10"
+          fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
+
+        <!-- Destination route label -->
+        <text x="${DEST_X}" y="${DEST_Y + 24}"
+          class="map-dest-text" text-anchor="middle">
+          ${destLabel.length > 14 ? destLabel.slice(0, 13) + '…' : destLabel}
+        </text>
+      </g>
+
+      <!-- Mobility indicator: small wheelchair icon mid-path for step-free routes -->
+      ${isMobility ? `
+        <g transform="translate(${MID_X - 8}, ${MID_Y - 18})" aria-hidden="true">
+          <rect width="16" height="16" rx="3"
+            fill="rgba(10,10,11,0.75)" />
+          <text x="8" y="12" text-anchor="middle"
+            font-size="10" fill="${colorMuted}">♿</text>
+        </g>
+      ` : ''}
+    </svg>
+  `;
+
+  // Update the text caption beneath the map
+  if (caption) {
+    caption.textContent = isMobility
+      ? `Step-free route → ${destLabel}`
+      : `Route → ${destLabel}`;
+  }
 }
 
 // Update clock in phone simulator

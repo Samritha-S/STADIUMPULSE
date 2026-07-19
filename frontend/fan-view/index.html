@@ -52,18 +52,12 @@
           </div>
         </section>
 
-        <!-- Simulated interactive map -->
+        <!-- Dynamic SVG Schematic Map -->
         <section class="map-placeholder" aria-label="Interactive Stadium Map">
-          <div class="map-grid" role="img" aria-label="Route map showing your position and destination">
-            <div class="map-route-line" aria-hidden="true"></div>
-            <div class="map-node map-node-current" aria-hidden="true">
-              <span class="node-label">You</span>
-            </div>
-            <div class="map-node map-node-destination" aria-hidden="true">
-              <span class="node-label">Destination</span>
-            </div>
+          <div class="map-grid" id="map-grid-container">
+            <!-- Dynamically populated SVG will be injected here -->
           </div>
-          <p class="map-caption">Map updating with optimised route directions…</p>
+          <p class="map-caption" id="map-caption-text">Awaiting route update…</p>
         </section>
 
       </div><!-- /.phone-content -->
