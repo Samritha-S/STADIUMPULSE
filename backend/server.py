@@ -1,10 +1,14 @@
 """
 StadiumPulse — Minimal FastAPI backend server.
 
-Exposes three endpoints:
-  GET /api/zones   -> List[ZoneState]
-  GET /api/briefs  -> List[ControlRoomBrief]   (watch/critical zones only)
-  GET /api/nudge   -> FanNudge  (query: fan_id, language, mobility_needs)
+Exposes six endpoints:
+  GET  /api/zones         -> List[ZoneState] (advances simulation tick)
+  GET  /api/briefs        -> List[ControlRoomBrief] (watch/critical zones only)
+  GET  /api/nudge         -> FanNudge (query: fan_id, language, mobility_needs)
+  GET  /api/transit-alert -> TransitAlertOverride (gets current active override)
+  POST /api/transit-alert -> TransitAlertOverride (sets/clears override tip)
+  POST /api/report        -> VolunteerReport (triages raw field updates)
+  GET  /api/reports       -> List[VolunteerReport] (retrieves triaged reports)
 
 Run with:
   cd stadiumpulse
